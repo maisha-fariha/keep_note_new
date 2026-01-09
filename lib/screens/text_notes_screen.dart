@@ -1,0 +1,445 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:keep_note_new/controllers/color_controller.dart';
+import 'package:keep_note_new/controllers/notes_controller.dart';
+import 'package:keep_note_new/models/notes_model.dart';
+import 'package:keep_note_new/services/reminder_services.dart';
+import 'package:keep_note_new/widgets/keep_tool_text_bar.dart';
+import 'package:intl/intl.dart';
+import '../controllers/text_style_controller.dart';
+import '../widgets/keep_color_bottom_sheet.dart';
+
+class TextNotesScreen extends StatefulWidget {
+  final NotesModel? note;
+
+  const TextNotesScreen({super.key, this.note});
+
+  @override
+  State<TextNotesScreen> createState() => _TextNotesScreenState();
+}
+
+class _TextNotesScreenState extends State<TextNotesScreen> {
+  TextEditingController titleController = TextEditingController();
+  TextEditingController noteController = TextEditingController();
+  final NotesController notesController = Get.find();
+  final ColorController colorController = Get.put(ColorController());
+  final TextStyleController styleController = Get.find<TextStyleController>();
+
+  Color selectedColor = Colors.white;
+
+  final FocusNode titleFocus = FocusNode();
+  final FocusNode noteFocus = FocusNode();
+
+  bool _isTitleFocused = false;
+  bool _isNoteFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.note != null) {
+      titleController.text = widget.note!.title;
+      noteController.text = widget.note!.content;
+
+      styleController.restoreFromNote(widget.note!);
+
+      colorController.selectedColor.value = Color(widget.note!.color);
+    }
+
+    titleFocus.addListener(() {
+      setState(() {
+        _isTitleFocused = titleFocus.hasFocus;
+      });
+    });
+
+    noteFocus.addListener(() {
+      setState(() {
+        _isNoteFocused = noteFocus.hasFocus;
+      });
+    });
+  }
+
+  void _saveAndBack() {
+    final style = Get.find<TextStyleController>();
+    final note = NotesModel(
+      id: widget.note?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      title: titleController.text,
+      content: noteController.text,
+      color: colorController.selectedColor.value.value,
+      bold: style.bold.value,
+      italic: style.italic.value,
+      underline: style.underline.value,
+      heading: style.heading.value.name,
+
+      reminderAt: widget.note?.reminderAt,
+      isDeleted: widget.note?.isDeleted ?? false,
+      deletedAt: widget.note?.deletedAt,
+    );
+
+    if (widget.note == null) {
+      notesController.addNotes(note);
+    } else {
+      notesController.updateNote(note);
+    }
+
+    style.reset();
+    colorController.reset();
+    Get.back();
+  }
+
+  void showReminderBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: false,
+      builder: (_) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade400,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              SizedBox(height: 20),
+              ListTile(
+                leading: Icon(Icons.notifications_active_outlined),
+                title: Text(
+                  'Remind me later',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text('Your reminders are saved in Google Tasks'),
+              ),
+              Divider(),
+              _reminderTile(
+                icon: Icons.access_time,
+                title: 'Later today',
+                time: '6:00 pm',
+                onTap: () {
+                  _applyReminder(DateTime.now().copyWith(hour: 18, minute: 0));
+                },
+              ),
+              _reminderTile(
+                icon: Icons.access_time,
+                title: 'Tomorrow morning',
+                time: '8:00 am',
+                onTap: () {
+                  _applyReminder(
+                    DateTime.now()
+                        .add(Duration(days: 1))
+                        .copyWith(hour: 8, minute: 0),
+                  );
+                },
+              ),
+              _reminderTile(
+                icon: Icons.access_time,
+                title: 'Next monday',
+                time: '8:00 am',
+                onTap: () {
+                  final now = DateTime.now();
+                  final monday = now
+                      .add(Duration(days: 8 - now.weekday % 7))
+                      .copyWith(hour: 8, minute: 0);
+                  _applyReminder(monday);
+                },
+              ),
+              _reminderTile(
+                icon: Icons.calendar_today_outlined,
+                title: 'Choose a date & time',
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickCustomDateTime(context);
+                },
+              ),
+              SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickCustomDateTime(BuildContext context) async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    if (date == null) return;
+
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (time == null) return;
+
+    final reminderTime = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+
+    _applyReminder(reminderTime);
+  }
+
+  void _applyReminder(DateTime time) {
+    final existingId =
+        widget.note?.id ?? DateTime.now().millisecondsSinceEpoch.toString();
+
+    final updatedNote = NotesModel(
+      id: existingId,
+      title: titleController.text,
+      content: noteController.text,
+      color: colorController.selectedColor.value.value,
+      bold: styleController.bold.value,
+      italic: styleController.italic.value,
+      underline: styleController.underline.value,
+      heading: styleController.heading.value.name,
+      reminderAt: time,
+    );
+
+    if (widget.note == null) {
+      notesController.addNotes(updatedNote);
+    } else {
+      notesController.updateNote(updatedNote);
+    }
+
+    ReminderServices.schedule(
+      noteId: existingId,
+      title: updatedNote.title,
+      body: updatedNote.content,
+      time: time,
+    );
+
+    Get.back(); // close bottom sheet
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        _saveAndBack();
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade100,
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          leading: IconButton(
+            onPressed: _saveAndBack,
+            icon: Icon(Icons.arrow_back),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                shape: StadiumBorder(),
+                backgroundColor: Colors.grey.shade200,
+              ),
+              child: Icon(Icons.push_pin_outlined, size: 25),
+            ),
+            SizedBox(width: 5),
+            ElevatedButton(
+              onPressed: () {
+                showReminderBottomSheet(context);
+              },
+              style: ElevatedButton.styleFrom(
+                shape: StadiumBorder(),
+                backgroundColor: Colors.grey.shade200,
+              ),
+              child: Icon(Icons.add_alert_outlined, size: 25),
+            ),
+            SizedBox(width: 5),
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                shape: StadiumBorder(),
+                backgroundColor: Colors.grey.shade200,
+              ),
+              child: Icon(Icons.archive_outlined, size: 25),
+            ),
+          ],
+        ),
+        body: Obx(
+          () => Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              color: colorController.selectedColor.value,
+            ),
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: TextFormField(
+                      maxLines: null,
+                      minLines: 1,
+                      controller: titleController,
+                      focusNode: titleFocus,
+                      style: TextStyle(fontSize: 24),
+                      decoration: InputDecoration(
+                        hintText: _isTitleFocused ? '' : 'Title',
+                        labelStyle: TextStyle(fontSize: 24),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: TextFormField(
+                      maxLines: null,
+                      minLines: 1,
+                      controller: noteController,
+                      focusNode: noteFocus,
+                      style: styleController.textStyle,
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                        hintText: _isNoteFocused ? '' : 'Notes',
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+
+                  /// 🔔 Reminder chip
+                  if (widget.note?.reminderAt != null)
+                    _reminderChip(widget.note!),
+                ],
+              ),
+            ),
+          ),
+        ),
+        bottomNavigationBar: Obx(() {
+          final style = Get.find<TextStyleController>();
+
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (style.showToolbar.value) KeepToolTextBar(),
+
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  color: colorController.selectedColor.value,
+                  child: Row(
+                    children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: StadiumBorder(),
+                          backgroundColor: Colors.grey.shade200,
+                        ),
+                        onPressed: () {},
+                        child: Icon(Icons.add_box_outlined),
+                      ),
+                      SizedBox(width: 5),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: StadiumBorder(),
+                          backgroundColor: Colors.grey.shade200,
+                        ),
+                        onPressed: () {
+                          KeepColorBottomSheet.show(context);
+                        },
+                        child: Icon(Icons.color_lens_outlined),
+                      ),
+                      SizedBox(width: 5),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: StadiumBorder(),
+                          backgroundColor: Colors.grey.shade200,
+                        ),
+                        onPressed: () {
+                          style.toggleToolbar();
+                          FocusScope.of(context).requestFocus(noteFocus);
+                        },
+                        child: Icon(Icons.text_format),
+                      ),
+                      Spacer(),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: StadiumBorder(),
+                          backgroundColor: Colors.grey.shade200,
+                        ),
+                        onPressed: () {},
+                        child: Icon(Icons.more_vert),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _reminderTile({
+    required IconData icon,
+    required String title,
+    String? time,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      trailing: time != null
+          ? Text(time, style: TextStyle(fontWeight: FontWeight.w500))
+          : null,
+      onTap: onTap,
+    );
+  }
+
+  Widget _reminderChip(NotesModel note) {
+    if (note.reminderAt == null) return SizedBox();
+
+    return Container(
+      margin: EdgeInsets.fromLTRB(16, 12, 16, 0),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.blueGrey.shade50,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.notifications),
+          SizedBox(width: 6),
+          Text(
+            DateFormat('EEE, MMM d • hh:mm a').format(note.reminderAt!),
+            style: TextStyle(fontSize: 13),
+          ),
+          SizedBox(width: 6),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              notesController.removeReminder(note.id);
+            },
+            child: Icon(Icons.close, size: 16),
+          ),
+        ],
+      ),
+    );
+  }
+}
