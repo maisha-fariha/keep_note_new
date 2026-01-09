@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:keep_note_new/controllers/color_controller.dart';
@@ -153,7 +154,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                 },
               ),
               _reminderTile(
-                icon: Icons.calendar_today_outlined,
+                icon: Icons.access_time,
                 title: 'Choose a date & time',
                 onTap: () {
                   Navigator.pop(context);
@@ -167,6 +168,100 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       },
     );
   }
+
+  void showAddBoxBottomSheet(BuildContext context) {
+    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: false, builder: (_) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: 10,),
+            ListTile(
+              leading: Icon(Icons.photo_camera_sharp),
+              title: Text('Take Photo'),
+            ),
+            SizedBox(height: 10,),
+            ListTile(
+              leading: Icon(Icons.image_outlined),
+              title: Text('Add Image'),
+            ),
+            SizedBox(height: 10,),
+            ListTile(
+              leading: Icon(Icons.brush_outlined),
+              title: Text('Drawing'),
+            ),
+            SizedBox(height: 10,),
+            ListTile(
+              leading: Icon(Icons.mic),
+              title: Text('Recording'),
+            ),
+            SizedBox(height: 10,),
+            ListTile(
+              leading: Icon(Icons.check_box_outlined),
+              title: Text('Tick Boxes'),
+            ),
+            SizedBox(height: 50,),
+          ],
+        ),
+      );
+    });
+  }
+
+  void showMoreBottomSheet(BuildContext context) {
+    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: false, builder: (_) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: 10,),
+            ListTile(
+              title: Text('Edited at 6:00 pm', style: TextStyle(fontWeight: FontWeight.bold),),
+            ),
+            SizedBox(height: 5,),
+            ListTile(
+              leading: Icon(CupertinoIcons.delete),
+              title: Text('Delete'),
+            ),
+            SizedBox(height: 5,),
+            ListTile(
+              leading: Icon(Icons.copy_rounded),
+              title: Text('Make a copy'),
+            ),
+            SizedBox(height: 5,),
+            ListTile(
+              leading: Icon(Icons.share_outlined),
+              title: Text('Send'),
+            ),
+            SizedBox(height: 5,),
+            ListTile(
+              leading: Icon(Icons.person_add_alt_1),
+              title: Text('Collaborators'),
+            ),
+            SizedBox(height: 5,),
+            ListTile(
+              leading: Icon(Icons.label_outline),
+              title: Text('Labels'),
+            ),
+            SizedBox(height: 5,),
+            ListTile(
+              leading: Icon(Icons.help_outline_outlined),
+              title: Text('Help & feedback'),
+            ),
+            SizedBox(height: 50,),
+          ],
+        ),
+      );
+    });
+  }
+
 
   Future<void> _pickCustomDateTime(BuildContext context) async {
     final date = await showDatePicker(
@@ -349,7 +444,9 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                           shape: StadiumBorder(),
                           backgroundColor: Colors.grey.shade200,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          showAddBoxBottomSheet(context);
+                        },
                         child: Icon(Icons.add_box_outlined),
                       ),
                       SizedBox(width: 5),
@@ -381,7 +478,9 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                           shape: StadiumBorder(),
                           backgroundColor: Colors.grey.shade200,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          showMoreBottomSheet(context);
+                        },
                         child: Icon(Icons.more_vert),
                       ),
                     ],
