@@ -87,20 +87,6 @@ class _DeletedScreenState extends State<DeletedScreen> {
     return AppBar(
       backgroundColor: Colors.white,
       title: const Text('Deleted'),
-      actions: [
-        PopupMenuButton(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.grey.shade100,
-          itemBuilder: (_) => [
-            PopupMenuItem(value: 'empty', child: Text('Empty bin')),
-          ],
-          onSelected: (value) {
-            if (value == 'empty') {
-              _showEmptyBinDialog();
-            }
-          },
-        ),
-      ],
     );
   }
 
@@ -121,6 +107,18 @@ class _DeletedScreenState extends State<DeletedScreen> {
             );
 
             controller.clearSelection();
+          },
+        ),
+        PopupMenuButton(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.grey.shade100,
+          itemBuilder: (_) => [
+            PopupMenuItem(value: 'empty', child: Text('Empty bin')),
+          ],
+          onSelected: (value) {
+            if (value == 'empty') {
+              _showEmptyBinDialog();
+            }
           },
         ),
       ],
