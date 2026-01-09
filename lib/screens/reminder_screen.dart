@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:keep_note_new/controllers/notes_controller.dart';
 import 'package:keep_note_new/models/notes_model.dart';
+import 'package:keep_note_new/screens/text_notes_screen.dart';
 import 'package:keep_note_new/widgets/keep_drawer.dart';
 
 class ReminderScreen extends StatefulWidget {
@@ -36,24 +37,41 @@ class _ReminderScreenState extends State<ReminderScreen> {
         title: Text('Reminder'),
         actions: [
           IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-          IconButton(onPressed: () {}, icon: Icon(Icons.grid_view)),
+          Obx(() {
+            final isGrid =
+                notesController.reminderViewMode.value == ReminderViewMode.grid;
+            return IconButton(
+              onPressed: notesController.toggleReminderView,
+              icon: Icon(isGrid ? Icons.view_agenda_outlined : Icons.grid_view),
+            );
+          }),
         ],
       ),
       drawer: KeepDrawer(),
       body: Obx(() {
-        final reminders = notesController.reminderNotes;
+        final notes = notesController.reminderNotes;
+        final mode = notesController.reminderViewMode.value;
 
-        if (reminders.isEmpty) {
-          return _emptyReminder();
+        if (notes.isEmpty) return _emptyReminder();
+
+        if (mode == ReminderViewMode.grid) {
+          return GridView.builder(
+            padding: const EdgeInsets.all(12),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.9,
+            ),
+            itemCount: notes.length,
+            itemBuilder: (_, i) => _reminderGridCard(notes[i]),
+          );
         }
 
         return ListView.builder(
-          padding: EdgeInsets.all(16),
-          itemCount: reminders.length,
-          itemBuilder: (_, i) {
-            final note = reminders[i];
-            return _reminderCard(note);
-          },
+          padding: const EdgeInsets.all(12),
+          itemCount: notes.length,
+          itemBuilder: (_, i) => _reminderCard(notes[i]),
         );
       }),
     );
@@ -98,6 +116,70 @@ class _ReminderScreenState extends State<ReminderScreen> {
           },
           tooltip: 'Remove Reminder',
           icon: Icon(Icons.close),
+        ),
+      ),
+    );
+  }
+
+  Widget _reminderGridCard(NotesModel note) {
+    String formatReminder(DateTime date) {
+      return '${date.day}/${date.month}/${date.year} '
+          '${TimeOfDay.fromDateTime(date).format(Get.context!)}';
+    }
+
+    return GestureDetector(
+      onTap: () {
+        Get.to(() => TextNotesScreen(note: note));
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Color(note.color),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            /// TITLE
+            Text(
+              note.title.isEmpty ? 'No Title' : note.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+
+            const SizedBox(height: 8),
+
+            /// REMINDER CHIP
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.notifications_active_outlined, size: 14),
+                  const SizedBox(width: 6),
+                  Text(
+                    formatReminder(note.reminderAt!),
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  const SizedBox(width: 6),
+
+                  /// CLOSE ICON
+                  GestureDetector(
+                    onTap: () {
+                      notesController.removeReminder(note.id);
+                    },
+                    child: const Icon(Icons.close, size: 14),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

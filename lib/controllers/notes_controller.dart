@@ -3,9 +3,12 @@ import 'package:get_storage/get_storage.dart';
 import 'package:keep_note_new/models/notes_model.dart';
 import 'package:keep_note_new/services/reminder_services.dart';
 
+enum ReminderViewMode{grid, list}
+
 class NotesController extends GetxController {
   final RxList<NotesModel> notes = <NotesModel>[].obs;
   final GetStorage _box = GetStorage();
+  final Rx<ReminderViewMode> reminderViewMode = ReminderViewMode.list.obs;
 
   static String _storageKey = 'notes';
 
@@ -29,6 +32,13 @@ class NotesController extends GetxController {
 
     list.sort((a, b) => a.reminderAt!.compareTo(b.reminderAt!));
     return list;
+  }
+
+  void toggleReminderView() {
+    reminderViewMode.value =
+    reminderViewMode.value == ReminderViewMode.list
+        ? ReminderViewMode.grid
+        : ReminderViewMode.list;
   }
 
   void loadNotes() {
