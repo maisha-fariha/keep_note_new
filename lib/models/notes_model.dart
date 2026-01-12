@@ -10,6 +10,7 @@ class NotesModel {
   final String heading;
 
   final bool isDeleted;
+  final bool isArchived;
   final int? deletedAt;
   final DateTime? reminderAt;
 
@@ -23,6 +24,7 @@ class NotesModel {
     required this.underline,
     required this.heading,
     this.isDeleted = false,
+    this.isArchived = false,
     this.deletedAt,
     this.reminderAt,
   }) : color = color ?? 0xFFFFFFFF;
@@ -38,6 +40,7 @@ class NotesModel {
       'underline': underline ? 1 : 0,
       'heading': heading,
       'isDeleted': isDeleted ? 1 : 0,
+      'isArchived': isArchived ? 1 : 0,
       'deletedAt': deletedAt,
       'reminderAt': reminderAt?.millisecondsSinceEpoch,
     };
@@ -54,6 +57,7 @@ class NotesModel {
       underline: (map['underline'] ?? 0) == 1,
       heading: map['heading'] ?? 'normal',
       isDeleted: (map['isDeleted'] ?? 0) == 1,
+      isArchived: (map['isArchived'] ?? 0) == 1,
       deletedAt: map['deletedAt'],
       reminderAt: map['reminderAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['reminderAt'])
@@ -70,6 +74,7 @@ class NotesModel {
     bool? underline,
     String? heading,
     bool? isDeleted,
+    bool? isArchived,
     int? deletedAt,
     DateTime? reminderAt,
   }) {
@@ -83,6 +88,7 @@ class NotesModel {
       underline: underline ?? this.underline,
       heading: heading ?? this.heading,
       isDeleted: isDeleted ?? this.isDeleted,
+      isArchived: isArchived ?? this.isArchived,
       deletedAt: deletedAt ?? this.deletedAt,
       reminderAt: reminderAt ?? this.reminderAt,
     );

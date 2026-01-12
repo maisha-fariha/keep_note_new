@@ -74,6 +74,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
 
       reminderAt: widget.note?.reminderAt,
       isDeleted: widget.note?.isDeleted ?? false,
+      isArchived: widget.note?.isArchived ?? false,
       deletedAt: widget.note?.deletedAt,
     );
 
@@ -320,7 +321,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       time: time,
     );
 
-    Get.back(); // close bottom sheet
+    Get.back();
   }
 
   @override
@@ -361,7 +362,30 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
             ),
             SizedBox(width: 5),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                final style = Get.find<TextStyleController>();
+
+                final note = NotesModel(
+                  id: widget.note?.id ??
+                      DateTime.now().millisecondsSinceEpoch.toString(),
+                  title: titleController.text,
+                  content: noteController.text,
+                  color: colorController.selectedColor.value.value,
+                  bold: style.bold.value,
+                  italic: style.italic.value,
+                  underline: style.underline.value,
+                  heading: style.heading.value.name,
+                  reminderAt: widget.note?.reminderAt,
+                  isArchived: true,
+                );
+
+                if (widget.note == null) {
+                  notesController.addNotes(note);
+                } else {
+                  notesController.updateNote(note);
+                }
+                Get.back();
+              },
               style: ElevatedButton.styleFrom(
                 shape: StadiumBorder(),
                 backgroundColor: Colors.grey.shade200,
@@ -412,7 +436,6 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                     ),
                   ),
 
-                  /// 🔔 Reminder chip
                   if (widget.note?.reminderAt != null)
                     _reminderChip(widget.note!),
                 ],

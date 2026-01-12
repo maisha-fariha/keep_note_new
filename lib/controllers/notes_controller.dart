@@ -3,12 +3,15 @@ import 'package:get_storage/get_storage.dart';
 import 'package:keep_note_new/models/notes_model.dart';
 import 'package:keep_note_new/services/reminder_services.dart';
 
-enum ReminderViewMode{grid, list}
+enum ReminderViewMode { grid, list }
+enum ArchiveViewMode {grid, list}
 
 class NotesController extends GetxController {
   final RxList<NotesModel> notes = <NotesModel>[].obs;
   final GetStorage _box = GetStorage();
   final Rx<ReminderViewMode> reminderViewMode = ReminderViewMode.list.obs;
+  final Rx<ArchiveViewMode> archiveViewMode = ArchiveViewMode.list.obs;
+
 
   static String _storageKey = 'notes';
 
@@ -21,9 +24,13 @@ class NotesController extends GetxController {
     saveNotes();
   }
 
-  List<NotesModel> get activeNotes => notes.where((n) => !n.isDeleted).toList();
+  List<NotesModel> get activeNotes =>
+      notes.where((n) => !n.isDeleted && !n.isArchived).toList();
 
   List<NotesModel> get deletedNotes => notes.where((n) => n.isDeleted).toList();
+
+  List<NotesModel> get archivedNotes =>
+      notes.where((n) => n.isArchived && !n.isDeleted).toList();
 
   List<NotesModel> get reminderNotes {
     final list = notes
@@ -35,8 +42,7 @@ class NotesController extends GetxController {
   }
 
   void toggleReminderView() {
-    reminderViewMode.value =
-    reminderViewMode.value == ReminderViewMode.list
+    reminderViewMode.value = reminderViewMode.value == ReminderViewMode.list
         ? ReminderViewMode.grid
         : ReminderViewMode.list;
   }
@@ -84,6 +90,30 @@ class NotesController extends GetxController {
     saveNotes();
   }
 
+  void archiveNotes(Set<String> ids) {
+    for (int i = 0; i < notes.length; i++) {
+      if (ids.contains(notes[i].id)) {
+        notes[i] = notes[i].copyWith(isArchived: true);
+      }
+    }
+    saveNotes();
+    notes.refresh();
+  }
+
+  void unarchiveNotes(Set<String> ids) {
+    for (int i = 0; i < notes.length; i++) {
+      if (ids.contains(notes[i].id)) {
+        notes[i] = notes[i].copyWith(isArchived: false);
+      }
+    }
+    saveNotes();
+    notes.refresh();
+  }
+
+  void archiveNote(NotesModel note) {
+    final updated = note.copyWith(isArchived: true);
+    updateNote(updated);
+  }
   void restoreNotes(Set<String> ids) {
     for (int i = 0; i < notes.length; i++) {
       if (ids.contains(notes[i].id)) {

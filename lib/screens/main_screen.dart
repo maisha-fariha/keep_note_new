@@ -190,9 +190,13 @@ class _MainScreenState extends State<MainScreen> {
           color: Colors.grey.shade100,
           borderRadius: BorderRadius.circular(10),
           onSelected: (value) {
+            final selectedIds = Set<String>.from(controller.selectedIds);
+            if (value == 'Archive') {
+              notesController.archiveNotes(selectedIds);
+              controller.clearSelection();
+            }
             if (value == 'Delete') {
-              final deletedIds = Set<String>.from(controller.selectedIds);
-              notesController.deleteNotes(deletedIds);
+              notesController.deleteNotes(selectedIds);
               controller.clearSelection();
 
               Get.snackbar(
@@ -202,7 +206,7 @@ class _MainScreenState extends State<MainScreen> {
                 duration: Duration(seconds: 4),
                 mainButton: TextButton(
                   onPressed: () {
-                    notesController.restoreNotes(deletedIds);
+                    notesController.restoreNotes(selectedIds);
                     Get.back();
                   },
                   child: Text('UNDO', style: TextStyle(color: Colors.white)),
