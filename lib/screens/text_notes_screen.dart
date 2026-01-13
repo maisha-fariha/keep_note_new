@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,6 +11,7 @@ import 'package:keep_note_new/widgets/keep_tool_text_bar.dart';
 import 'package:intl/intl.dart';
 import '../controllers/text_style_controller.dart';
 import '../widgets/keep_color_bottom_sheet.dart';
+import 'package:image_picker/image_picker.dart';
 
 class TextNotesScreen extends StatefulWidget {
   final NotesModel? note;
@@ -20,6 +23,7 @@ class TextNotesScreen extends StatefulWidget {
 }
 
 class _TextNotesScreenState extends State<TextNotesScreen> {
+  final ImagePicker _picker = ImagePicker();
   TextEditingController titleController = TextEditingController();
   TextEditingController noteController = TextEditingController();
   final NotesController notesController = Get.find();
@@ -31,6 +35,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
   final FocusNode titleFocus = FocusNode();
   final FocusNode noteFocus = FocusNode();
 
+  List<String> _images = [];
   bool _isTitleFocused = false;
   bool _isNoteFocused = false;
 
@@ -45,6 +50,8 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       styleController.restoreFromNote(widget.note!);
 
       colorController.selectedColor.value = Color(widget.note!.color);
+
+      _images = List.from(widget.note?.images ?? []);
     }
 
     titleFocus.addListener(() {
@@ -60,6 +67,21 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
     });
   }
 
+  Future<void> _takePhoto() async {
+    final XFile? photo = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 85,
+    );
+
+    if (photo == null) return;
+
+    setState(() {
+      _images.add(photo.path);
+    });
+
+    Get.back();
+  }
+
   void _saveAndBack() {
     final style = Get.find<TextStyleController>();
     final note = NotesModel(
@@ -72,6 +94,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       underline: style.underline.value,
       heading: style.heading.value.name,
 
+      images: _images,
       reminderAt: widget.note?.reminderAt,
       isDeleted: widget.note?.isDeleted ?? false,
       isArchived: widget.note?.isArchived ?? false,
@@ -171,98 +194,108 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
   }
 
   void showAddBoxBottomSheet(BuildContext context) {
-    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: false, builder: (_) {
-      return Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(height: 10,),
-            ListTile(
-              leading: Icon(Icons.photo_camera_sharp),
-              title: Text('Take Photo'),
-            ),
-            SizedBox(height: 10,),
-            ListTile(
-              leading: Icon(Icons.image_outlined),
-              title: Text('Add Image'),
-            ),
-            SizedBox(height: 10,),
-            ListTile(
-              leading: Icon(Icons.brush_outlined),
-              title: Text('Drawing'),
-            ),
-            SizedBox(height: 10,),
-            ListTile(
-              leading: Icon(Icons.mic),
-              title: Text('Recording'),
-            ),
-            SizedBox(height: 10,),
-            ListTile(
-              leading: Icon(Icons.check_box_outlined),
-              title: Text('Tick Boxes'),
-            ),
-            SizedBox(height: 50,),
-          ],
-        ),
-      );
-    });
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: false,
+      builder: (_) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 10),
+              ListTile(
+                leading: Icon(Icons.photo_camera_sharp),
+                title: Text('Take Photo'),
+                onTap: _takePhoto,
+              ),
+              SizedBox(height: 10),
+              ListTile(
+                leading: Icon(Icons.image_outlined),
+                title: Text('Add Image'),
+              ),
+              SizedBox(height: 10),
+              ListTile(
+                leading: Icon(Icons.brush_outlined),
+                title: Text('Drawing'),
+              ),
+              SizedBox(height: 10),
+              ListTile(leading: Icon(Icons.mic), title: Text('Recording')),
+              SizedBox(height: 10),
+              ListTile(
+                leading: Icon(Icons.check_box_outlined),
+                title: Text('Tick Boxes'),
+              ),
+              SizedBox(height: 50),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void showMoreBottomSheet(BuildContext context) {
-    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, isScrollControlled: false, builder: (_) {
-      return Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(height: 10,),
-            ListTile(
-              title: Text('Edited at 6:00 pm', style: TextStyle(fontWeight: FontWeight.bold),),
-            ),
-            SizedBox(height: 5,),
-            ListTile(
-              leading: Icon(CupertinoIcons.delete),
-              title: Text('Delete'),
-            ),
-            SizedBox(height: 5,),
-            ListTile(
-              leading: Icon(Icons.copy_rounded),
-              title: Text('Make a copy'),
-            ),
-            SizedBox(height: 5,),
-            ListTile(
-              leading: Icon(Icons.share_outlined),
-              title: Text('Send'),
-            ),
-            SizedBox(height: 5,),
-            ListTile(
-              leading: Icon(Icons.person_add_alt_1),
-              title: Text('Collaborators'),
-            ),
-            SizedBox(height: 5,),
-            ListTile(
-              leading: Icon(Icons.label_outline),
-              title: Text('Labels'),
-            ),
-            SizedBox(height: 5,),
-            ListTile(
-              leading: Icon(Icons.help_outline_outlined),
-              title: Text('Help & feedback'),
-            ),
-            SizedBox(height: 50,),
-          ],
-        ),
-      );
-    });
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: false,
+      builder: (_) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 10),
+              ListTile(
+                title: Text(
+                  'Edited at 6:00 pm',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              SizedBox(height: 5),
+              ListTile(
+                leading: Icon(CupertinoIcons.delete),
+                title: Text('Delete'),
+              ),
+              SizedBox(height: 5),
+              ListTile(
+                leading: Icon(Icons.copy_rounded),
+                title: Text('Make a copy'),
+              ),
+              SizedBox(height: 5),
+              ListTile(
+                leading: Icon(Icons.share_outlined),
+                title: Text('Send'),
+              ),
+              SizedBox(height: 5),
+              ListTile(
+                leading: Icon(Icons.person_add_alt_1),
+                title: Text('Collaborators'),
+              ),
+              SizedBox(height: 5),
+              ListTile(
+                leading: Icon(Icons.label_outline),
+                title: Text('Labels'),
+              ),
+              SizedBox(height: 5),
+              ListTile(
+                leading: Icon(Icons.help_outline_outlined),
+                title: Text('Help & feedback'),
+              ),
+              SizedBox(height: 50),
+            ],
+          ),
+        );
+      },
+    );
   }
-
 
   Future<void> _pickCustomDateTime(BuildContext context) async {
     final date = await showDatePicker(
@@ -366,7 +399,8 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                 final style = Get.find<TextStyleController>();
 
                 final note = NotesModel(
-                  id: widget.note?.id ??
+                  id:
+                      widget.note?.id ??
                       DateTime.now().millisecondsSinceEpoch.toString(),
                   title: titleController.text,
                   content: noteController.text,
@@ -405,6 +439,51 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (_images.isNotEmpty)
+                    SizedBox(
+                      height: 120,
+                      child: ListView.separated(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (_, i) {
+                          return Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.file(
+                                  File(_images[i]),
+                                  width: 120,
+                                  height: 120,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Positioned(
+                                top: 4,
+                                right: 4,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _images.removeAt(i);
+                                    });
+                                  },
+                                  child: CircleAvatar(
+                                    radius: 12,
+                                    backgroundColor: Colors.black54,
+                                    child: Icon(
+                                      Icons.close,
+                                      size: 14,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                        separatorBuilder: (_, _) => SizedBox(width: 8),
+                        itemCount: _images.length,
+                      ),
+                    ),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: TextFormField(

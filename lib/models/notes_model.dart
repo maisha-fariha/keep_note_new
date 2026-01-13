@@ -9,6 +9,8 @@ class NotesModel {
   final bool underline;
   final String heading;
 
+  final List<String>? images;
+
   final bool isDeleted;
   final bool isArchived;
   final int? deletedAt;
@@ -23,6 +25,7 @@ class NotesModel {
     required this.italic,
     required this.underline,
     required this.heading,
+    this.images = const [],
     this.isDeleted = false,
     this.isArchived = false,
     this.deletedAt,
@@ -39,6 +42,7 @@ class NotesModel {
       'italic': italic ? 1 : 0,
       'underline': underline ? 1 : 0,
       'heading': heading,
+      'images': images,
       'isDeleted': isDeleted ? 1 : 0,
       'isArchived': isArchived ? 1 : 0,
       'deletedAt': deletedAt,
@@ -56,6 +60,7 @@ class NotesModel {
       italic: (map['italic'] ?? 0) == 1,
       underline: (map['underline'] ?? 0) == 1,
       heading: map['heading'] ?? 'normal',
+      images: List<String>.from(map['images'] ?? []),
       isDeleted: (map['isDeleted'] ?? 0) == 1,
       isArchived: (map['isArchived'] ?? 0) == 1,
       deletedAt: map['deletedAt'],
@@ -73,6 +78,7 @@ class NotesModel {
     bool? italic,
     bool? underline,
     String? heading,
+    List<String>? images,
     bool? isDeleted,
     bool? isArchived,
     int? deletedAt,
@@ -87,6 +93,7 @@ class NotesModel {
       italic: italic ?? this.italic,
       underline: underline ?? this.underline,
       heading: heading ?? this.heading,
+      images: images ?? this.images,
       isDeleted: isDeleted ?? this.isDeleted,
       isArchived: isArchived ?? this.isArchived,
       deletedAt: deletedAt ?? this.deletedAt,
