@@ -4,14 +4,14 @@ import 'package:keep_note_new/models/notes_model.dart';
 import 'package:keep_note_new/services/reminder_services.dart';
 
 enum ReminderViewMode { grid, list }
-enum ArchiveViewMode {grid, list}
+
+enum ArchiveViewMode { grid, list }
 
 class NotesController extends GetxController {
   final RxList<NotesModel> notes = <NotesModel>[].obs;
   final GetStorage _box = GetStorage();
   final Rx<ReminderViewMode> reminderViewMode = ReminderViewMode.list.obs;
   final Rx<ArchiveViewMode> archiveViewMode = ArchiveViewMode.list.obs;
-
 
   static String _storageKey = 'notes';
 
@@ -45,6 +45,30 @@ class NotesController extends GetxController {
     reminderViewMode.value = reminderViewMode.value == ReminderViewMode.list
         ? ReminderViewMode.grid
         : ReminderViewMode.list;
+  }
+
+  void togglePin(Set<String> ids) {
+    final allPinned = areAllSelectedPinned(ids);
+
+    notes.assignAll(
+      notes.map((note) {
+        if (!ids.contains(note.id)) return note;
+
+        return note.copyWith(isPinned: !allPinned);
+      }).toList(),
+    );
+
+    saveNotes();
+  }
+
+  bool areAllSelectedPinned(Set<String> selectedIds) {
+    if (selectedIds.isEmpty) return false;
+
+    final selectedNotes = activeNotes
+        .where((n) => selectedIds.contains(n.id))
+        .toList();
+
+    return selectedNotes.isNotEmpty && selectedNotes.every((n) => n.isPinned);
   }
 
   void loadNotes() {
@@ -111,9 +135,10 @@ class NotesController extends GetxController {
   }
 
   void archiveNote(NotesModel note) {
-    final updated = note.copyWith(isArchived: true);
+    final updated = note.copyWith(isArchived: true, isPinned: false);
     updateNote(updated);
   }
+
   void restoreNotes(Set<String> ids) {
     for (int i = 0; i < notes.length; i++) {
       if (ids.contains(notes[i].id)) {

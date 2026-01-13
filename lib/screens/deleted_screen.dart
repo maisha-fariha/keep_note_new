@@ -170,7 +170,7 @@ class _DeletedScreenState extends State<DeletedScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(CupertinoIcons.delete, size: 150, color: Colors.amber),
+          Icon(CupertinoIcons.delete, size: 150, color: Color(0xFF8AA072)),
           SizedBox(height: 16),
           Text('No Notes in Recycle Bin'),
         ],

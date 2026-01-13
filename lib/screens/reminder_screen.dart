@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:keep_note_new/controllers/notes_controller.dart';
@@ -141,6 +143,18 @@ class _ReminderScreenState extends State<ReminderScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (note.images.isNotEmpty)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  File(note.images.first),
+                  height: 100,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) =>SizedBox(),
+                ),
+              ),
+            SizedBox(height: 8,),
             /// TITLE
             Text(
               note.title.isEmpty ? 'No Title' : note.title,

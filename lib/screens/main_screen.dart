@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
@@ -24,12 +26,16 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: Obx(() {
-          return controller.selectionMode.value
-              ? _contextualAppBar()
-              : _normalAppBar();
-        }),
+        preferredSize: const Size.fromHeight(120),
+        child: Container(
+          height: 120,
+          decoration: BoxDecoration(color: Color(0xFFB5C99A)),
+          child: Obx(() {
+            return controller.selectionMode.value
+                ? _contextualAppBar()
+                : _normalAppBar();
+          }),
+        ),
       ),
       drawer: KeepDrawer(),
       body: Obx(() {
@@ -39,7 +45,7 @@ class _MainScreenState extends State<MainScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(Icons.lightbulb_outlined, size: 150, color: Colors.amber),
+                Icon(Icons.lightbulb_outlined, size: 150, color: Color(0xFF8AA072)),
                 Text(
                   'Notes you add appear here',
                   style: TextStyle(fontSize: 16),
@@ -80,7 +86,7 @@ class _MainScreenState extends State<MainScreen> {
               Padding(
                 padding: EdgeInsets.all(16),
                 child: FloatingActionButton(
-                  backgroundColor: Colors.blue.shade800,
+                  backgroundColor: Color(0xFF8AA072),
                   onPressed: () {
                     controller.toggleFab();
                   },
@@ -99,7 +105,8 @@ class _MainScreenState extends State<MainScreen> {
 
   PreferredSizeWidget _normalAppBar() {
     return AppBar(
-      backgroundColor: Colors.grey.shade100,
+      toolbarHeight: 100,
+      backgroundColor: Color(0xFFB5C99A),
       leading: Builder(
         builder: (context) => Padding(
           padding: const EdgeInsets.all(10.0),
@@ -112,48 +119,51 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
       centerTitle: true,
-      title: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Container(
-          height: 60,
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
-            color: Colors.white,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                flex: 3,
-                child: SearchBar(
-                  hintText: 'Search Ke...',
-                  elevation: WidgetStateProperty.all(0),
-                  backgroundColor: WidgetStateProperty.all(Colors.white),
+      title: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 50, bottom: 40),
+          child: Container(
+            height: 50,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              color: Color(0xFFE6E6CC),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: SearchBar(
+                    hintText: 'Search Ke...',
+                    elevation: WidgetStateProperty.all(0),
+                    backgroundColor: WidgetStateProperty.all(Color(0xFFE6E6CC)),
+                  ),
                 ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Obx(
-                  () => IconButton(
-                    onPressed: controller.toggleView,
-                    icon: Icon(
-                      controller.view.value == NotesView.grid
-                          ? Icons.view_agenda_outlined
-                          : Icons.grid_view,
+                Expanded(
+                  flex: 1,
+                  child: Obx(
+                    () => IconButton(
+                      onPressed: controller.toggleView,
+                      icon: Icon(
+                        controller.view.value == NotesView.grid
+                            ? Icons.view_agenda_outlined
+                            : Icons.grid_view,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Expanded(
-                flex: 1,
-                child: IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.swap_vert),
+                Expanded(
+                  flex: 1,
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.swap_vert),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -161,6 +171,7 @@ class _MainScreenState extends State<MainScreen> {
         Padding(
           padding: const EdgeInsets.all(10.0),
           child: CircleAvatar(
+            backgroundColor: Color(0xFFE6E6CC),
             child: IconButton(onPressed: () {}, icon: Icon(Icons.person)),
           ),
         ),
@@ -170,20 +181,39 @@ class _MainScreenState extends State<MainScreen> {
 
   PreferredSizeWidget _contextualAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
-      leading: IconButton(
-        onPressed: controller.clearSelection,
-        icon: Icon(Icons.close),
+      toolbarHeight: 100,
+      backgroundColor: Color(0xFFB5C99A),
+      leading: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: IconButton(
+          onPressed: controller.clearSelection,
+          icon: Icon(Icons.close),
+        ),
       ),
-      title: Obx(
-        () => Text(
-          controller.selectedIds.length.toString(),
-          style: TextStyle(fontSize: 18),
+      title: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Obx(
+          () => Text(
+            controller.selectedIds.length.toString(),
+            style: TextStyle(fontSize: 18),
+          ),
         ),
       ),
       actions: [
-        IconButton(onPressed: () {}, icon: Icon(Icons.push_pin_outlined)),
-        IconButton(onPressed: () {}, icon: Icon(Icons.notifications_none)),
+        Obx(() {
+          final allPinned = notesController.areAllSelectedPinned(
+            controller.selectedIds,
+          );
+
+          return IconButton(
+            onPressed: () {
+              notesController.togglePin(controller.selectedIds);
+              controller.selectedIds;
+            },
+            icon: Icon(allPinned ? Icons.push_pin : Icons.push_pin_outlined),
+          );
+        }),
+        IconButton(onPressed: () {}, icon: Icon(Icons.add_alert_outlined)),
         IconButton(onPressed: () {}, icon: Icon(Icons.color_lens_outlined)),
         IconButton(onPressed: () {}, icon: Icon(Icons.label_outline)),
         PopupMenuButton(
@@ -224,28 +254,76 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildGrid() {
-    return MasonryGridView.count(
-      crossAxisCount: 2,
-      mainAxisSpacing: 8,
-      crossAxisSpacing: 8,
-      itemCount: notesController.activeNotes.length,
-      itemBuilder: (context, index) {
-        final note = notesController.activeNotes[index];
-        return _noteCard(note);
-      },
+    final pinnedNotes = notesController.activeNotes
+        .where((n) => n.isPinned && !n.isArchived)
+        .toList();
+    final otherNotes = notesController.activeNotes
+        .where((n) => !n.isPinned && !n.isArchived)
+        .toList();
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (pinnedNotes.isNotEmpty) ...[
+            _sectionTitle('Pinned'),
+            MasonryGridView.count(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              itemCount: pinnedNotes.length,
+              itemBuilder: (_, i) => _noteCard(pinnedNotes[i]),
+            ),
+          ],
+
+          if (otherNotes.isNotEmpty) ...[
+            _sectionTitle('Others'),
+            MasonryGridView.count(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              itemCount: otherNotes.length,
+              itemBuilder: (_, i) => _noteCard(otherNotes[i]),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
   Widget _buildList() {
-    return ListView.builder(
-      itemCount: notesController.activeNotes.length,
-      itemBuilder: (_, index) {
-        final note = notesController.activeNotes[index];
-        return Padding(
-          padding: EdgeInsets.only(bottom: 16),
-          child: _noteCard(note, isList: true),
-        );
-      },
+    final pinnedNotes = notesController.activeNotes
+        .where((n) => n.isPinned && !n.isArchived)
+        .toList();
+    final otherNotes = notesController.activeNotes
+        .where((n) => !n.isPinned && !n.isArchived)
+        .toList();
+    return ListView(
+      children: [
+        if (pinnedNotes.isNotEmpty) ...[
+          _sectionTitle('Pinned'),
+          ...pinnedNotes.map(
+            (note) => Padding(
+              padding: EdgeInsets.only(bottom: 16),
+              child: _noteCard(note, isList: true),
+            ),
+          ),
+        ],
+
+        if (otherNotes.isNotEmpty) ...[
+          _sectionTitle('Others'),
+          ...otherNotes.map(
+            (note) => Padding(
+              padding: EdgeInsets.only(bottom: 16),
+              child: _noteCard(note, isList: true),
+            ),
+          ),
+        ],
+      ],
     );
   }
 
@@ -267,12 +345,24 @@ class _MainScreenState extends State<MainScreen> {
               color: Color(note.color),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isSelected ? Colors.blue : Colors.grey.shade300,
+                color: isSelected ? Color(0xFFB5C99A) : Colors.grey.shade300,
               ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (note.images.isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(
+                      File(note.images.first),
+                      height: 120,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => SizedBox(),
+                    ),
+                  ),
+                SizedBox(height: 8),
                 if (note.title.isNotEmpty)
                   Text(
                     note.title,
@@ -346,6 +436,21 @@ class _MainScreenState extends State<MainScreen> {
         onPressed: onPressed,
         icon: Icon(icon, color: Colors.blue.shade800),
         label: Text(text, style: TextStyle(color: Colors.blue.shade800)),
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey,
+          letterSpacing: 1,
+        ),
       ),
     );
   }

@@ -38,11 +38,13 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
   List<String> _images = [];
   bool _isTitleFocused = false;
   bool _isNoteFocused = false;
+  bool isPinned = false;
 
   @override
   void initState() {
     super.initState();
 
+    isPinned = widget.note?.isPinned ?? false;
     if (widget.note != null) {
       titleController.text = widget.note!.title;
       noteController.text = widget.note!.content;
@@ -67,19 +69,22 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
     });
   }
 
-  Future<void> _takePhoto() async {
-    final XFile? photo = await _picker.pickImage(
-      source: ImageSource.camera,
-      imageQuality: 85,
-    );
-
-    if (photo == null) return;
+  Future<void> _pickImageFromCamera() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    if (image == null) return;
 
     setState(() {
-      _images.add(photo.path);
+      _images.add(image.path);
     });
+  }
 
-    Get.back();
+  Future<void> _pickImageFromGallery() async {
+    final List<XFile> images = await _picker.pickMultiImage();
+    if (images.isEmpty) return;
+
+    setState(() {
+      _images.addAll(images.map((e) => e.path));
+    });
   }
 
   void _saveAndBack() {
@@ -94,6 +99,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       underline: style.underline.value,
       heading: style.heading.value.name,
 
+      isPinned: isPinned,
       images: _images,
       reminderAt: widget.note?.reminderAt,
       isDeleted: widget.note?.isDeleted ?? false,
@@ -211,12 +217,19 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
               ListTile(
                 leading: Icon(Icons.photo_camera_sharp),
                 title: Text('Take Photo'),
-                onTap: _takePhoto,
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImageFromCamera();
+                },
               ),
               SizedBox(height: 10),
               ListTile(
                 leading: Icon(Icons.image_outlined),
                 title: Text('Add Image'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImageFromGallery();
+                },
               ),
               SizedBox(height: 10),
               ListTile(
@@ -375,12 +388,31 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
           ),
           actions: [
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  isPinned = !isPinned;
+                });
+
+                if (widget.note != null) {
+                  final updated = widget.note!.copyWith(isPinned: isPinned);
+                  notesController.updateNote(updated);
+                }
+
+                Get.snackbar(
+                  isPinned ? 'Note Pinned' : 'Note unpinned',
+                  '',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: Duration(seconds: 1),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 shape: StadiumBorder(),
                 backgroundColor: Colors.grey.shade200,
               ),
-              child: Icon(Icons.push_pin_outlined, size: 25),
+              child: Icon(
+                isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                size: 25,
+              ),
             ),
             SizedBox(width: 5),
             ElevatedButton(
@@ -440,21 +472,23 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (_images.isNotEmpty)
-                    SizedBox(
-                      height: 120,
-                      child: ListView.separated(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (_, i) {
-                          return Stack(
+                    Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: List.generate(
+                          _images.length,
+                          (index) => Stack(
                             children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
                                 child: Image.file(
-                                  File(_images[i]),
-                                  width: 120,
-                                  height: 120,
+                                  File(_images[index]),
+                                  width: 160,
+                                  height: 160,
                                   fit: BoxFit.cover,
+                                  errorBuilder: (_, _, _) => SizedBox(),
                                 ),
                               ),
                               Positioned(
@@ -463,25 +497,26 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                                 child: GestureDetector(
                                   onTap: () {
                                     setState(() {
-                                      _images.removeAt(i);
+                                      _images.removeAt(index);
                                     });
                                   },
-                                  child: CircleAvatar(
-                                    radius: 12,
-                                    backgroundColor: Colors.black54,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black54,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    padding: EdgeInsets.all(4),
                                     child: Icon(
                                       Icons.close,
-                                      size: 14,
                                       color: Colors.white,
+                                      size: 16,
                                     ),
                                   ),
                                 ),
                               ),
                             ],
-                          );
-                        },
-                        separatorBuilder: (_, _) => SizedBox(width: 8),
-                        itemCount: _images.length,
+                          ),
+                        ),
                       ),
                     ),
                   Padding(

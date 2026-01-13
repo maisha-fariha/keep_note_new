@@ -9,8 +9,9 @@ class NotesModel {
   final bool underline;
   final String heading;
 
-  final List<String>? images;
+  final List<String> images;
 
+  final bool isPinned;
   final bool isDeleted;
   final bool isArchived;
   final int? deletedAt;
@@ -25,12 +26,14 @@ class NotesModel {
     required this.italic,
     required this.underline,
     required this.heading,
-    this.images = const [],
+    this.isPinned = false,
     this.isDeleted = false,
     this.isArchived = false,
     this.deletedAt,
     this.reminderAt,
-  }) : color = color ?? 0xFFFFFFFF;
+    List<String>? images,
+  }) : color = color ?? 0xFFFFFFFF,
+       images = images ?? [];
 
   Map<String, dynamic> toMap() {
     return {
@@ -42,11 +45,12 @@ class NotesModel {
       'italic': italic ? 1 : 0,
       'underline': underline ? 1 : 0,
       'heading': heading,
-      'images': images,
+      'isPinned': isPinned ? 1 : 0,
       'isDeleted': isDeleted ? 1 : 0,
       'isArchived': isArchived ? 1 : 0,
       'deletedAt': deletedAt,
       'reminderAt': reminderAt?.millisecondsSinceEpoch,
+      'images': images.isNotEmpty ? images.join('|') : '',
     };
   }
 
@@ -60,13 +64,16 @@ class NotesModel {
       italic: (map['italic'] ?? 0) == 1,
       underline: (map['underline'] ?? 0) == 1,
       heading: map['heading'] ?? 'normal',
-      images: List<String>.from(map['images'] ?? []),
-      isDeleted: (map['isDeleted'] ?? 0) == 1,
-      isArchived: (map['isArchived'] ?? 0) == 1,
+      isPinned: map['isPinned'] == 1,
+      isDeleted: map['isDeleted'] == 1,
+      isArchived: map['isArchived'] == 1,
       deletedAt: map['deletedAt'],
       reminderAt: map['reminderAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['reminderAt'])
           : null,
+      images: map['images'] != null && map['images'].toString().isNotEmpty
+          ? map['images'].toString().split('|')
+          : [],
     );
   }
 
@@ -79,6 +86,7 @@ class NotesModel {
     bool? underline,
     String? heading,
     List<String>? images,
+    bool? isPinned,
     bool? isDeleted,
     bool? isArchived,
     int? deletedAt,
@@ -94,6 +102,7 @@ class NotesModel {
       underline: underline ?? this.underline,
       heading: heading ?? this.heading,
       images: images ?? this.images,
+      isPinned: isPinned ?? this.isPinned,
       isDeleted: isDeleted ?? this.isDeleted,
       isArchived: isArchived ?? this.isArchived,
       deletedAt: deletedAt ?? this.deletedAt,
