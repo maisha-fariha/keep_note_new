@@ -21,6 +21,7 @@ class _DeletedScreenState extends State<DeletedScreen> {
   void _showEmptyBinDialog() {
     Get.dialog(
       AlertDialog(
+        backgroundColor: Color(0xFFF6FAF2),
         title: Text('Empty Recycle bin?'),
         content: Text(
           'All notes in the Recycle Bin will be permanently deleted',
@@ -49,9 +50,9 @@ class _DeletedScreenState extends State<DeletedScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
+      backgroundColor: Color(0xFFF6FAF2),
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
+        preferredSize: const Size.fromHeight(120),
         child: Obx(() {
           return controller.selectionMode.value
               ? _contextualAppBar()
@@ -82,17 +83,19 @@ class _DeletedScreenState extends State<DeletedScreen> {
     );
   }
 
-  // ───────── APP BARS ─────────
+
   PreferredSizeWidget _normalAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      toolbarHeight: 100,
+      backgroundColor: Color(0xFFB5C99A),
       title: const Text('Deleted'),
     );
   }
 
   PreferredSizeWidget _contextualAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      toolbarHeight: 100,
+      backgroundColor: Color(0xFFB5C99A),
       leading: IconButton(
         icon: const Icon(Icons.close),
         onPressed: controller.clearSelection,
@@ -111,7 +114,7 @@ class _DeletedScreenState extends State<DeletedScreen> {
         ),
         PopupMenuButton(
           borderRadius: BorderRadius.circular(10),
-          color: Colors.grey.shade100,
+          color: Color(0xFFF6FAF2),
           itemBuilder: (_) => [
             PopupMenuItem(value: 'empty', child: Text('Empty bin')),
           ],
@@ -125,7 +128,7 @@ class _DeletedScreenState extends State<DeletedScreen> {
     );
   }
 
-  // ───────── NOTE CARD ─────────
+
   Widget _noteCard(NotesModel note) {
     return Obx(() {
       final isSelected = controller.selectedIds.contains(note.id);
@@ -138,7 +141,7 @@ class _DeletedScreenState extends State<DeletedScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
-              color: isSelected ? Colors.blue : Colors.grey.shade300,
+              color: isSelected ? Color(0xFF8AA072) : Colors.grey.shade300,
             ),
           ),
           child: Padding(

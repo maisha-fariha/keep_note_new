@@ -20,34 +20,44 @@ class _ReminderScreenState extends State<ReminderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: Builder(
-          builder: (context) {
-            return Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: IconButton(
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-                icon: Icon(Icons.menu),
-              ),
-            );
-          },
+      backgroundColor: Color(0xFFF6FAF2),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(100),
+        child: AppBar(
+          toolbarHeight: 100,
+          backgroundColor: Color(0xFFB5C99A),
+          leading: Builder(
+            builder: (context) {
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: IconButton(
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                  icon: Icon(Icons.menu),
+                ),
+              );
+            },
+          ),
+          title:  Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text('Reminder'),
+          ),
+          actions: [
+            IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+            Obx(() {
+              final isGrid =
+                  notesController.reminderViewMode.value == ReminderViewMode.grid;
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: IconButton(
+                  onPressed: notesController.toggleReminderView,
+                  icon: Icon(isGrid ? Icons.view_agenda_outlined : Icons.grid_view),
+                ),
+              );
+            }),
+          ],
         ),
-        title: Text('Reminder'),
-        actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-          Obx(() {
-            final isGrid =
-                notesController.reminderViewMode.value == ReminderViewMode.grid;
-            return IconButton(
-              onPressed: notesController.toggleReminderView,
-              icon: Icon(isGrid ? Icons.view_agenda_outlined : Icons.grid_view),
-            );
-          }),
-        ],
       ),
       drawer: KeepDrawer(),
       body: Obx(() {
@@ -85,7 +95,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(Icons.notifications_none, size: 150, color: Colors.amber),
+          Icon(Icons.notifications_none, size: 150, color: Color(0xFF8AA072)),
           Text(
             'Your upcoming reminder notes appear here',
             style: TextStyle(fontSize: 16),
@@ -183,7 +193,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
                   ),
                   const SizedBox(width: 6),
 
-                  /// CLOSE ICON
+
                   GestureDetector(
                     onTap: () {
                       notesController.removeReminder(note.id);

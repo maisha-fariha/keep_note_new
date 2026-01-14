@@ -24,7 +24,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Color(0xFFF6FAF2),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(120),
         child: Container(
@@ -45,7 +45,11 @@ class _MainScreenState extends State<MainScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(Icons.lightbulb_outlined, size: 150, color: Color(0xFF8AA072)),
+                Icon(
+                  Icons.lightbulb_outlined,
+                  size: 150,
+                  color: Color(0xFF8AA072),
+                ),
                 Text(
                   'Notes you add appear here',
                   style: TextStyle(fontSize: 16),
@@ -217,7 +221,7 @@ class _MainScreenState extends State<MainScreen> {
         IconButton(onPressed: () {}, icon: Icon(Icons.color_lens_outlined)),
         IconButton(onPressed: () {}, icon: Icon(Icons.label_outline)),
         PopupMenuButton(
-          color: Colors.grey.shade100,
+          color: Color(0xFFF6FAF2),
           borderRadius: BorderRadius.circular(10),
           onSelected: (value) {
             final selectedIds = Set<String>.from(controller.selectedIds);
@@ -345,7 +349,7 @@ class _MainScreenState extends State<MainScreen> {
               color: Color(note.color),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isSelected ? Color(0xFFB5C99A) : Colors.grey.shade300,
+                color: isSelected ? Color(0xFF8AA072) : Colors.grey.shade300,
               ),
             ),
             child: Column(
@@ -390,13 +394,17 @@ class _MainScreenState extends State<MainScreen> {
                     margin: EdgeInsets.only(top: 8),
                     padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.blueGrey.shade50,
+                      color: Color(0xFFE6E6CC),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.notifications, size: 14),
+                        Icon(
+                          Icons.notifications,
+                          size: 14,
+                          color: Color(0xFF8AA072),
+                        ),
                         SizedBox(width: 4),
                         Flexible(
                           child: Text(
@@ -430,12 +438,12 @@ class _MainScreenState extends State<MainScreen> {
       bottom: bottom,
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFFC5F1F5),
+          backgroundColor: Color(0xFFE6E6CC),
           shape: StadiumBorder(),
         ),
         onPressed: onPressed,
-        icon: Icon(icon, color: Colors.blue.shade800),
-        label: Text(text, style: TextStyle(color: Colors.blue.shade800)),
+        icon: Icon(icon, color: Color(0xFF8AA072)),
+        label: Text(text, style: TextStyle(color: Color(0xFF8AA072))),
       ),
     );
   }
@@ -448,7 +456,7 @@ class _MainScreenState extends State<MainScreen> {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          color: Colors.grey,
+          color: Color(0xFF8AA072),
           letterSpacing: 1,
         ),
       ),

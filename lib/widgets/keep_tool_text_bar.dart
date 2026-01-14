@@ -12,7 +12,7 @@ class KeepToolTextBar extends StatelessWidget {
 
     return Material(
       elevation: 4,
-      color: Colors.grey.shade100,
+      color: Color(0xFFF6FAF2),
       child: SizedBox(
         height: 48,
         child: SingleChildScrollView(

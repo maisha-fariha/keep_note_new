@@ -126,7 +126,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       builder: (_) {
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Color(0xFFF6FAF2),
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
@@ -137,7 +137,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade400,
+                  color: Color(0xFFF6FAF2),
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -207,7 +207,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       builder: (_) {
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Color(0xFFF6FAF2),
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
@@ -259,7 +259,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       builder: (_) {
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Color(0xFFF6FAF2),
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
@@ -378,87 +378,97 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
         return false;
       },
       child: Scaffold(
-        backgroundColor: Colors.grey.shade100,
+        backgroundColor: Color(0xFFF6FAF2),
         resizeToAvoidBottomInset: true,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          leading: IconButton(
-            onPressed: _saveAndBack,
-            icon: Icon(Icons.arrow_back),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(120),
+          child: AppBar(
+            toolbarHeight: 100,
+            backgroundColor: Color(0xFFB5C99A),
+            leading: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: IconButton(
+                onPressed: _saveAndBack,
+                icon: Icon(Icons.arrow_back),
+              ),
+            ),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    isPinned = !isPinned;
+                  });
+
+                  if (widget.note != null) {
+                    final updated = widget.note!.copyWith(isPinned: isPinned);
+                    notesController.updateNote(updated);
+                  }
+
+                  Get.snackbar(
+                    isPinned ? 'Note Pinned' : 'Note unpinned',
+                    '',
+                    snackPosition: SnackPosition.BOTTOM,
+                    duration: Duration(seconds: 1),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: StadiumBorder(),
+                  backgroundColor: Color(0xFFE6E6CC),
+                ),
+                child: Icon(
+                  isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                  size: 25,
+                ),
+              ),
+              SizedBox(width: 5),
+              ElevatedButton(
+                onPressed: () {
+                  showReminderBottomSheet(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: StadiumBorder(),
+                  backgroundColor: Color(0xFFE6E6CC),
+                ),
+                child: Icon(Icons.add_alert_outlined, size: 25),
+              ),
+              SizedBox(width: 5),
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    final style = Get.find<TextStyleController>();
+
+                    final note = NotesModel(
+                      id:
+                          widget.note?.id ??
+                          DateTime.now().millisecondsSinceEpoch.toString(),
+                      title: titleController.text,
+                      content: noteController.text,
+                      color: colorController.selectedColor.value.value,
+                      bold: style.bold.value,
+                      italic: style.italic.value,
+                      underline: style.underline.value,
+                      heading: style.heading.value.name,
+                      reminderAt: widget.note?.reminderAt,
+                      isArchived: true,
+                    );
+
+                    if (widget.note == null) {
+                      notesController.addNotes(note);
+                    } else {
+                      notesController.updateNote(note);
+                    }
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: StadiumBorder(),
+                    backgroundColor: Color(0xFFE6E6CC),
+                  ),
+                  child: Icon(Icons.archive_outlined, size: 25),
+                ),
+              ),
+            ],
           ),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  isPinned = !isPinned;
-                });
-
-                if (widget.note != null) {
-                  final updated = widget.note!.copyWith(isPinned: isPinned);
-                  notesController.updateNote(updated);
-                }
-
-                Get.snackbar(
-                  isPinned ? 'Note Pinned' : 'Note unpinned',
-                  '',
-                  snackPosition: SnackPosition.BOTTOM,
-                  duration: Duration(seconds: 1),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                shape: StadiumBorder(),
-                backgroundColor: Colors.grey.shade200,
-              ),
-              child: Icon(
-                isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                size: 25,
-              ),
-            ),
-            SizedBox(width: 5),
-            ElevatedButton(
-              onPressed: () {
-                showReminderBottomSheet(context);
-              },
-              style: ElevatedButton.styleFrom(
-                shape: StadiumBorder(),
-                backgroundColor: Colors.grey.shade200,
-              ),
-              child: Icon(Icons.add_alert_outlined, size: 25),
-            ),
-            SizedBox(width: 5),
-            ElevatedButton(
-              onPressed: () {
-                final style = Get.find<TextStyleController>();
-
-                final note = NotesModel(
-                  id:
-                      widget.note?.id ??
-                      DateTime.now().millisecondsSinceEpoch.toString(),
-                  title: titleController.text,
-                  content: noteController.text,
-                  color: colorController.selectedColor.value.value,
-                  bold: style.bold.value,
-                  italic: style.italic.value,
-                  underline: style.underline.value,
-                  heading: style.heading.value.name,
-                  reminderAt: widget.note?.reminderAt,
-                  isArchived: true,
-                );
-
-                if (widget.note == null) {
-                  notesController.addNotes(note);
-                } else {
-                  notesController.updateNote(note);
-                }
-                Get.back();
-              },
-              style: ElevatedButton.styleFrom(
-                shape: StadiumBorder(),
-                backgroundColor: Colors.grey.shade200,
-              ),
-              child: Icon(Icons.archive_outlined, size: 25),
-            ),
-          ],
         ),
         body: Obx(
           () => Container(
@@ -579,7 +589,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           shape: StadiumBorder(),
-                          backgroundColor: Colors.grey.shade200,
+                          backgroundColor: Color(0xFFE6E6CC),
                         ),
                         onPressed: () {
                           showAddBoxBottomSheet(context);
@@ -590,7 +600,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           shape: StadiumBorder(),
-                          backgroundColor: Colors.grey.shade200,
+                          backgroundColor: Color(0xFFE6E6CC),
                         ),
                         onPressed: () {
                           KeepColorBottomSheet.show(context);
@@ -601,7 +611,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           shape: StadiumBorder(),
-                          backgroundColor: Colors.grey.shade200,
+                          backgroundColor: Color(0xFFE6E6CC),
                         ),
                         onPressed: () {
                           style.toggleToolbar();
@@ -613,7 +623,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           shape: StadiumBorder(),
-                          backgroundColor: Colors.grey.shade200,
+                          backgroundColor: Color(0xFFE6E6CC),
                         ),
                         onPressed: () {
                           showMoreBottomSheet(context);
@@ -660,7 +670,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.notifications),
+          Icon(Icons.notifications, color: Color(0xFF8AA072),),
           SizedBox(width: 6),
           Text(
             DateFormat('EEE, MMM d • hh:mm a').format(note.reminderAt!),

@@ -21,35 +21,45 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: Builder(
-          builder: (context) => Padding(
-            padding: const EdgeInsets.all(10),
-            child: IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () => Scaffold.of(context).openDrawer(),
+      backgroundColor: Color(0xFFF6FAF2),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(100),
+        child: AppBar(
+          toolbarHeight: 100,
+          backgroundColor: Color(0xFFB5C99A),
+          leading: Builder(
+            builder: (context) => Padding(
+              padding: const EdgeInsets.all(16),
+              child: IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              ),
             ),
           ),
+          title: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: const Text('Archive'),
+          ),
+          actions: [
+            IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
+            Obx(() {
+              final isGrid =
+                  notesController.archiveViewMode.value == ArchiveViewMode.grid;
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: IconButton(
+                  icon: Icon(
+                    isGrid ? Icons.view_agenda_outlined : Icons.grid_view,
+                  ),
+                  onPressed: () {
+                    notesController.archiveViewMode.value =
+                    isGrid ? ArchiveViewMode.list : ArchiveViewMode.grid;
+                  },
+                ),
+              );
+            }),
+          ],
         ),
-        title: const Text('Archive'),
-        actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-          Obx(() {
-            final isGrid =
-                notesController.archiveViewMode.value == ArchiveViewMode.grid;
-            return IconButton(
-              icon: Icon(
-                isGrid ? Icons.view_agenda_outlined : Icons.grid_view,
-              ),
-              onPressed: () {
-                notesController.archiveViewMode.value =
-                isGrid ? ArchiveViewMode.list : ArchiveViewMode.grid;
-              },
-            );
-          }),
-        ],
       ),
       drawer: KeepDrawer(),
       body: Obx(() {
@@ -85,7 +95,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.archive_outlined, size: 150, color: Colors.amber),
+          Icon(Icons.archive_outlined, size: 150, color: Color(0xFF8AA072)),
           SizedBox(height: 12),
           Text(
             'Your archived notes appear here',
@@ -96,7 +106,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
     );
   }
 
-  /// ================= GRID CARD =================
+
   Widget _archiveGridCard(NotesModel note) {
     return GestureDetector(
       onTap: () => Get.to(() => TextNotesScreen(note: note)),
@@ -123,7 +133,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
               ),
 
             const SizedBox(height: 8),
-            /// TITLE
+
             if (note.title.isNotEmpty)
               Text(
                 note.title,
@@ -133,7 +143,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
                 ),
               ),
 
-            /// CONTENT
+
             if (note.content?.isNotEmpty == true) ...[
               const SizedBox(height: 6),
               Text(
@@ -145,7 +155,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
 
             const SizedBox(height: 8),
 
-            /// UNARCHIVE BUTTON
+
             Align(
               alignment: Alignment.bottomRight,
               child: IconButton(
@@ -160,7 +170,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
     );
   }
 
-  /// ================= LIST CARD =================
+
   Widget _archiveListCard(NotesModel note) {
     return Card(
       color: Color(note.color ?? Colors.white.value),

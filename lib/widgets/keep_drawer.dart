@@ -14,7 +14,7 @@ class KeepDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Color(0xFFF8F9FA),
+      backgroundColor: Color(0xFFF6FAF2),
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +85,7 @@ class KeepDrawer extends StatelessWidget {
         borderRadius: BorderRadius.circular(30),
         child: Container(
           decoration: BoxDecoration(
-            color: selected ? Colors.amberAccent : Colors.transparent,
+            color: selected ? Color(0xFFB5C99A) : Colors.transparent,
             borderRadius: BorderRadius.circular(30),
           ),
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
