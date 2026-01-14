@@ -12,6 +12,7 @@ class NotesController extends GetxController {
   final GetStorage _box = GetStorage();
   final Rx<ReminderViewMode> reminderViewMode = ReminderViewMode.list.obs;
   final Rx<ArchiveViewMode> archiveViewMode = ArchiveViewMode.list.obs;
+  RxString searchQuery = ''.obs;
 
   static String _storageKey = 'notes';
 
@@ -22,6 +23,24 @@ class NotesController extends GetxController {
     loadNotes();
     autoDeleteExpiredNotes();
     saveNotes();
+  }
+
+  List<NotesModel> get searchedNotes {
+    final q = searchQuery.value.toLowerCase();
+    
+    return notes.where((note) {
+      if (q.isEmpty) return false;
+
+      return note.title.toLowerCase().contains(q) || note.content.toLowerCase().contains(q);
+    }).toList();
+  }
+
+  void updateSearch(String value) {
+    searchQuery.value = value;
+  }
+
+  void clearSearch() {
+    searchQuery.value = '';
   }
 
   List<NotesModel> get activeNotes =>

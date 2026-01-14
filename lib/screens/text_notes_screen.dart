@@ -88,6 +88,14 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
   }
 
   void _saveAndBack() {
+    final title = titleController.text.trim();
+    final content = noteController.text.trim();
+
+    if (title.isEmpty && content.isEmpty && _images.isEmpty) {
+      Get.back();
+      return;
+    }
+
     final style = Get.find<TextStyleController>();
     final note = NotesModel(
       id: widget.note?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
@@ -231,18 +239,18 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                   _pickImageFromGallery();
                 },
               ),
-              SizedBox(height: 10),
-              ListTile(
-                leading: Icon(Icons.brush_outlined),
-                title: Text('Drawing'),
-              ),
-              SizedBox(height: 10),
-              ListTile(leading: Icon(Icons.mic), title: Text('Recording')),
-              SizedBox(height: 10),
-              ListTile(
-                leading: Icon(Icons.check_box_outlined),
-                title: Text('Tick Boxes'),
-              ),
+              // SizedBox(height: 10),
+              // ListTile(
+              //   leading: Icon(Icons.brush_outlined),
+              //   title: Text('Drawing'),
+              // ),
+              // SizedBox(height: 10),
+              // ListTile(leading: Icon(Icons.mic), title: Text('Recording')),
+              // SizedBox(height: 10),
+              // ListTile(
+              //   leading: Icon(Icons.check_box_outlined),
+              //   title: Text('Tick Boxes'),
+              // ),
               SizedBox(height: 50),
             ],
           ),
@@ -251,64 +259,65 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
     );
   }
 
-  void showMoreBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: false,
-      builder: (_) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Color(0xFFF6FAF2),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(height: 10),
-              ListTile(
-                title: Text(
-                  'Edited at 6:00 pm',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(height: 5),
-              ListTile(
-                leading: Icon(CupertinoIcons.delete),
-                title: Text('Delete'),
-              ),
-              SizedBox(height: 5),
-              ListTile(
-                leading: Icon(Icons.copy_rounded),
-                title: Text('Make a copy'),
-              ),
-              SizedBox(height: 5),
-              ListTile(
-                leading: Icon(Icons.share_outlined),
-                title: Text('Send'),
-              ),
-              SizedBox(height: 5),
-              ListTile(
-                leading: Icon(Icons.person_add_alt_1),
-                title: Text('Collaborators'),
-              ),
-              SizedBox(height: 5),
-              ListTile(
-                leading: Icon(Icons.label_outline),
-                title: Text('Labels'),
-              ),
-              SizedBox(height: 5),
-              ListTile(
-                leading: Icon(Icons.help_outline_outlined),
-                title: Text('Help & feedback'),
-              ),
-              SizedBox(height: 50),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  // void showMoreBottomSheet(BuildContext context) {
+  //   showModalBottomSheet(
+  //     context: context,
+  //     backgroundColor: Colors.transparent,
+  //     isScrollControlled: false,
+  //     builder: (_) {
+  //       return Container(
+  //         decoration: BoxDecoration(
+  //           color: Color(0xFFF6FAF2),
+  //           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+  //         ),
+  //         child: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             SizedBox(height: 10),
+  //             ListTile(
+  //               title: Text(
+  //                 'Edited at 6:00 pm',
+  //                 style: TextStyle(fontWeight: FontWeight.bold),
+  //               ),
+  //             ),
+  //             SizedBox(height: 5),
+  //             ListTile(
+  //               leading: Icon(CupertinoIcons.delete),
+  //               title: Text('Delete'),
+  //               onTap: () {},
+  //             ),
+  //             SizedBox(height: 5),
+  //             ListTile(
+  //               leading: Icon(Icons.copy_rounded),
+  //               title: Text('Make a copy'),
+  //             ),
+  //             SizedBox(height: 5),
+  //             ListTile(
+  //               leading: Icon(Icons.share_outlined),
+  //               title: Text('Send'),
+  //             ),
+  //             SizedBox(height: 5),
+  //             ListTile(
+  //               leading: Icon(Icons.person_add_alt_1),
+  //               title: Text('Collaborators'),
+  //             ),
+  //             SizedBox(height: 5),
+  //             ListTile(
+  //               leading: Icon(Icons.label_outline),
+  //               title: Text('Labels'),
+  //             ),
+  //             SizedBox(height: 5),
+  //             ListTile(
+  //               leading: Icon(Icons.help_outline_outlined),
+  //               title: Text('Help & feedback'),
+  //             ),
+  //             SizedBox(height: 50),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   Future<void> _pickCustomDateTime(BuildContext context) async {
     final date = await showDatePicker(
@@ -620,16 +629,16 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                         child: Icon(Icons.text_format),
                       ),
                       Spacer(),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          shape: StadiumBorder(),
-                          backgroundColor: Color(0xFFE6E6CC),
-                        ),
-                        onPressed: () {
-                          showMoreBottomSheet(context);
-                        },
-                        child: Icon(Icons.more_vert),
-                      ),
+                      // ElevatedButton(
+                      //   style: ElevatedButton.styleFrom(
+                      //     shape: StadiumBorder(),
+                      //     backgroundColor: Color(0xFFE6E6CC),
+                      //   ),
+                      //   onPressed: () {
+                      //     showMoreBottomSheet(context);
+                      //   },
+                      //   child: Icon(Icons.more_vert),
+                      // ),
                     ],
                   ),
                 ),

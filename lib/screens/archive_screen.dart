@@ -5,6 +5,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:keep_note_new/controllers/notes_controller.dart';
 import 'package:keep_note_new/models/notes_model.dart';
+import 'package:keep_note_new/screens/search_screen.dart';
 import 'package:keep_note_new/screens/text_notes_screen.dart';
 import 'package:keep_note_new/widgets/keep_drawer.dart';
 
@@ -41,7 +42,9 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
             child: const Text('Archive'),
           ),
           actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
+            IconButton(onPressed: () {
+              Get.to(() => SearchScreen());
+            }, icon: const Icon(Icons.search)),
             Obx(() {
               final isGrid =
                   notesController.archiveViewMode.value == ArchiveViewMode.grid;

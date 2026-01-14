@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:keep_note_new/controllers/notes_controller.dart';
 import 'package:keep_note_new/models/notes_model.dart';
+import 'package:keep_note_new/screens/search_screen.dart';
 import 'package:keep_note_new/screens/text_notes_screen.dart';
 import 'package:keep_note_new/widgets/keep_drawer.dart';
 
@@ -29,7 +30,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
           leading: Builder(
             builder: (context) {
               return Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.0),
                 child: IconButton(
                   onPressed: () {
                     Scaffold.of(context).openDrawer();
@@ -40,16 +41,18 @@ class _ReminderScreenState extends State<ReminderScreen> {
             },
           ),
           title:  Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             child: Text('Reminder'),
           ),
           actions: [
-            IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+            IconButton(onPressed: () {
+              Get.to(() => SearchScreen());
+            }, icon: Icon(Icons.search)),
             Obx(() {
               final isGrid =
                   notesController.reminderViewMode.value == ReminderViewMode.grid;
               return Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.0),
                 child: IconButton(
                   onPressed: notesController.toggleReminderView,
                   icon: Icon(isGrid ? Icons.view_agenda_outlined : Icons.grid_view),
@@ -68,8 +71,8 @@ class _ReminderScreenState extends State<ReminderScreen> {
 
         if (mode == ReminderViewMode.grid) {
           return GridView.builder(
-            padding: const EdgeInsets.all(12),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            padding: EdgeInsets.all(12),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
@@ -81,7 +84,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
         }
 
         return ListView.builder(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12),
           itemCount: notes.length,
           itemBuilder: (_, i) => _reminderCard(notes[i]),
         );
@@ -144,7 +147,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
         Get.to(() => TextNotesScreen(note: note));
       },
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Color(note.color),
           borderRadius: BorderRadius.circular(16),
@@ -170,14 +173,14 @@ class _ReminderScreenState extends State<ReminderScreen> {
               note.title.isEmpty ? 'No Title' : note.title,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(),
 
             /// REMINDER CHIP
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(14),
@@ -185,20 +188,20 @@ class _ReminderScreenState extends State<ReminderScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.notifications_active_outlined, size: 14),
-                  const SizedBox(width: 6),
+                  Icon(Icons.notifications_active_outlined, size: 14),
+                  SizedBox(width: 6),
                   Text(
                     formatReminder(note.reminderAt!),
-                    style: const TextStyle(fontSize: 12),
+                    style: TextStyle(fontSize: 12),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
 
 
                   GestureDetector(
                     onTap: () {
                       notesController.removeReminder(note.id);
                     },
-                    child: const Icon(Icons.close, size: 14),
+                    child: Icon(Icons.close, size: 14),
                   ),
                 ],
               ),

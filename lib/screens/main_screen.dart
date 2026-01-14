@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:keep_note_new/controllers/main_screen_controller.dart';
 import 'package:keep_note_new/controllers/notes_controller.dart';
 import 'package:keep_note_new/models/notes_model.dart';
+import 'package:keep_note_new/screens/search_screen.dart';
 import 'package:keep_note_new/screens/text_notes_screen.dart';
 import 'package:keep_note_new/widgets/keep_drawer.dart';
 import 'package:intl/intl.dart';
@@ -139,13 +140,16 @@ class _MainScreenState extends State<MainScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(
-                  flex: 3,
-                  child: SearchBar(
-                    hintText: 'Search Ke...',
-                    elevation: WidgetStateProperty.all(0),
-                    backgroundColor: WidgetStateProperty.all(Color(0xFFE6E6CC)),
+                    flex: 3,
+                    child: SearchBar(
+                      onTap: () {
+                        Get.to(() => SearchScreen());
+                      },
+                      hintText: 'Search Ke...',
+                      elevation: WidgetStateProperty.all(0),
+                      backgroundColor: WidgetStateProperty.all(Color(0xFFE6E6CC)),
+                    ),
                   ),
-                ),
                 Expanded(
                   flex: 1,
                   child: Obx(
@@ -159,27 +163,27 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                 ),
-                Expanded(
-                  flex: 1,
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.swap_vert),
-                  ),
-                ),
+                // Expanded(
+                //   flex: 1,
+                //   child: IconButton(
+                //     onPressed: () {},
+                //     icon: Icon(Icons.swap_vert),
+                //   ),
+                // ),
               ],
             ),
           ),
         ),
       ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: CircleAvatar(
-            backgroundColor: Color(0xFFE6E6CC),
-            child: IconButton(onPressed: () {}, icon: Icon(Icons.person)),
-          ),
-        ),
-      ],
+      // actions: [
+      //   Padding(
+      //     padding: const EdgeInsets.all(10.0),
+      //     child: CircleAvatar(
+      //       backgroundColor: Color(0xFFE6E6CC),
+      //       child: IconButton(onPressed: () {}, icon: Icon(Icons.person)),
+      //     ),
+      //   ),
+      // ],
     );
   }
 
@@ -217,9 +221,9 @@ class _MainScreenState extends State<MainScreen> {
             icon: Icon(allPinned ? Icons.push_pin : Icons.push_pin_outlined),
           );
         }),
-        IconButton(onPressed: () {}, icon: Icon(Icons.add_alert_outlined)),
-        IconButton(onPressed: () {}, icon: Icon(Icons.color_lens_outlined)),
-        IconButton(onPressed: () {}, icon: Icon(Icons.label_outline)),
+        // IconButton(onPressed: () {}, icon: Icon(Icons.add_alert_outlined)),
+        // IconButton(onPressed: () {}, icon: Icon(Icons.color_lens_outlined)),
+        // IconButton(onPressed: () {}, icon: Icon(Icons.label_outline)),
         PopupMenuButton(
           color: Color(0xFFF6FAF2),
           borderRadius: BorderRadius.circular(10),

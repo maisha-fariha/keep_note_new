@@ -52,7 +52,7 @@ class _DeletedScreenState extends State<DeletedScreen> {
     return Scaffold(
       backgroundColor: Color(0xFFF6FAF2),
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(120),
+        preferredSize: const Size.fromHeight(100),
         child: Obx(() {
           return controller.selectionMode.value
               ? _contextualAppBar()
@@ -89,6 +89,20 @@ class _DeletedScreenState extends State<DeletedScreen> {
       toolbarHeight: 100,
       backgroundColor: Color(0xFFB5C99A),
       title: const Text('Deleted'),
+      actions: [
+        PopupMenuButton(
+          borderRadius: BorderRadius.circular(10),
+          color: Color(0xFFF6FAF2),
+          itemBuilder: (_) => [
+            PopupMenuItem(value: 'empty', child: Text('Empty bin')),
+          ],
+          onSelected: (value) {
+            if (value == 'empty') {
+              _showEmptyBinDialog();
+            }
+          },
+        ),
+      ],
     );
   }
 
@@ -110,18 +124,6 @@ class _DeletedScreenState extends State<DeletedScreen> {
             );
 
             controller.clearSelection();
-          },
-        ),
-        PopupMenuButton(
-          borderRadius: BorderRadius.circular(10),
-          color: Color(0xFFF6FAF2),
-          itemBuilder: (_) => [
-            PopupMenuItem(value: 'empty', child: Text('Empty bin')),
-          ],
-          onSelected: (value) {
-            if (value == 'empty') {
-              _showEmptyBinDialog();
-            }
           },
         ),
       ],
