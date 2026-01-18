@@ -8,6 +8,7 @@ import 'package:keep_note_new/controllers/notes_controller.dart';
 import 'package:keep_note_new/models/notes_model.dart';
 import 'package:keep_note_new/screens/search_screen.dart';
 import 'package:keep_note_new/screens/text_notes_screen.dart';
+import 'package:keep_note_new/widgets/keep_color_dialog_box.dart';
 import 'package:keep_note_new/widgets/keep_drawer.dart';
 import 'package:intl/intl.dart';
 
@@ -222,7 +223,17 @@ class _MainScreenState extends State<MainScreen> {
           );
         }),
         // IconButton(onPressed: () {}, icon: Icon(Icons.add_alert_outlined)),
-        // IconButton(onPressed: () {}, icon: Icon(Icons.color_lens_outlined)),
+        IconButton(
+          onPressed: () {
+            final selectedNotes = notesController.activeNotes
+                .where((n) => controller.selectedIds.contains(n.id))
+                .toList();
+
+            // Show color picker dialog for all selected notes
+            KeepColorDialogBox.showColorDialogForMultiple(context, selectedNotes);
+          },
+          icon: Icon(Icons.color_lens_outlined),
+        ),
         // IconButton(onPressed: () {}, icon: Icon(Icons.label_outline)),
         PopupMenuButton(
           color: Color(0xFFF6FAF2),

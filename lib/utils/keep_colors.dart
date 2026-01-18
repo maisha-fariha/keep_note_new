@@ -13,6 +13,18 @@ class KeepColors {
   static Color blossom = Color(0xFFFDCFE8);
   static Color clay = Color(0xFFE6C9A8);
   static Color chalk = Color(0xFFE8EAED);
+  static Color butter = Color(0xFFFFF3B0);
+  static Color apricot = Color(0xFFFFD8B0);
+  static Color melon = Color(0xFFFFCFCF);
+  static Color lemonChiffon = Color(0xFFFFFACD);
+  static Color seafoam = Color(0xFFD0F0C0);
+  static Color aquaMist = Color(0xFFD0F7FF);
+  static Color lavenderMist = Color(0xFFEBD0FF);
+  static Color lilacBloom = Color(0xFFEAC0FF);
+  static Color blushPink = Color(0xFFFFE0EB);
+  static Color peachCream = Color(0xFFFFE5D0);
+  static Color vanilla = Color(0xFFFFF5E6);
+  static Color powderBlue = Color(0xFFD9EEFF);
 
   static List<Color> palette = [
     white,
@@ -27,5 +39,17 @@ class KeepColors {
     blossom,
     clay,
     chalk,
+    butter,
+    apricot,
+    melon,
+    lemonChiffon,
+    seafoam,
+    aquaMist,
+    lavenderMist,
+    lilacBloom,
+    blushPink,
+    peachCream,
+    vanilla,
+    powderBlue,
   ];
 }

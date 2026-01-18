@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:keep_note_new/models/notes_model.dart';
@@ -211,5 +212,14 @@ class NotesController extends GetxController {
 
     saveNotes();
     notes.refresh();
+  }
+
+  void updateNoteColor(String noteId, Color color) {
+    final index = notes.indexWhere((n) => n.id == noteId);
+    if (index != -1) {
+      notes[index] = notes[index].copyWith(color: color.value);
+      saveNotes();   // persist change
+      notes.refresh(); // update UI
+    }
   }
 }
