@@ -36,7 +36,8 @@ class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
     'Fira Sans',
     'Times New Roman',
     'Arial',
-    'Segoe UI',
+    // Bundled app font (pubspec family)
+    'SegoeUI',
     // Bundled app font (pubspec family)
     'MonotypeCorsiva',
     'Pacifico',
@@ -318,6 +319,8 @@ class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
     switch (font) {
       case 'MonotypeCorsiva':
         return 'Monotype Corsiva';
+      case 'SegoeUI':
+        return 'Segoe UI';
       default:
         return font;
     }

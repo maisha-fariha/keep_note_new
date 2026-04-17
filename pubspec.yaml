@@ -72,6 +72,9 @@ flutter:
     - family: MonotypeCorsiva
       fonts:
         - asset: assets/fonts/MonotypeCorsiva.ttf
+    - family: SegoeUI
+      fonts:
+        - asset: assets/fonts/Segoe UI.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:
