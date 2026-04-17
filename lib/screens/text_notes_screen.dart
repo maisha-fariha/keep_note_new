@@ -24,7 +24,11 @@ class TextNotesScreen extends StatefulWidget {
   State<TextNotesScreen> createState() => _TextNotesScreenState();
 }
 
-class _TextNotesScreenState extends State<TextNotesScreen> {
+class _TextNotesScreenState extends State<TextNotesScreen>
+    with WidgetsBindingObserver {
+  // Height reserved for the bottom editor menu (actions row) + spacing.
+  // We use 2x of this as requested to keep caret comfortably above the menu.
+  static const double _bottomMenuHeight = 80.0;
   final ImagePicker _picker = ImagePicker();
   TextEditingController titleController = TextEditingController();
   final NotesController notesController = Get.find();
@@ -38,6 +42,10 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
 
   late final QuillController _quillController;
   final ScrollController _quillScrollController = ScrollController();
+  final ScrollController _bodyScrollController = ScrollController();
+  final GlobalKey<EditorState> _editorKey = GlobalKey<EditorState>();
+  double _lastKeyboardInset = 0.0;
+  void Function(TextSelection textSelection)? _previousOnSelectionChanged;
 
   List<String> _images = [];
   bool _isTitleFocused = false;
@@ -46,6 +54,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     isPinned = widget.note?.isPinned ?? false;
 
@@ -53,6 +62,21 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       document: _loadDocument(widget.note?.content),
       selection: const TextSelection.collapsed(offset: 0),
     );
+
+    // If the keyboard is already open and user moves the caret,
+    // keep the caret visible (re-scroll to pointer position).
+    _previousOnSelectionChanged = _quillController.onSelectionChanged;
+    _quillController.onSelectionChanged = (selection) {
+      _previousOnSelectionChanged?.call(selection);
+
+      final view = WidgetsBinding.instance.platformDispatcher.views.first;
+      final insetLogical = view.viewInsets.bottom / view.devicePixelRatio;
+      if (insetLogical <= 0.0) return;
+      if (!mounted) return;
+      if (!noteFocus.hasFocus) return;
+
+      _scrollCaretIntoView(selection: selection);
+    };
 
     if (widget.note != null) {
       titleController.text = widget.note!.title;
@@ -78,6 +102,92 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
         FocusScope.of(context).requestFocus(noteFocus);
       }
     });
+  }
+
+  void _scrollCaretIntoView({TextSelection? selection, Duration? after}) {
+    void run() {
+      if (!mounted) return;
+      if (!noteFocus.hasFocus) return;
+      final sel = selection ?? _quillController.selection;
+      final len = _quillController.document.length;
+      final offset = sel.extentOffset.clamp(0, len);
+
+      // First: ask Quill to reveal caret inside its render tree.
+      _editorKey.currentState?.bringIntoView(TextPosition(offset: offset));
+
+      // Second: adjust outer page scroll so caret isn't behind the bottom menu.
+      final editorState = _editorKey.currentState;
+      if (editorState == null) return;
+      if (!_bodyScrollController.hasClients) return;
+
+      try {
+        final caretRect = editorState.renderEditor.getLocalRectForCaret(
+          TextPosition(offset: offset),
+        );
+        final editorBox = editorState.context.findRenderObject() as RenderBox;
+        final caretGlobal = editorBox.localToGlobal(caretRect.bottomLeft);
+
+        final screenH = MediaQuery.of(context).size.height;
+        final keyboardH = MediaQuery.of(context).viewInsets.bottom;
+        final safeBottom = MediaQuery.of(context).padding.bottom;
+
+        // We want the caret to stay above keyboard + bottom menu (+ a little cushion).
+        final desiredBottom =
+            screenH - keyboardH - (_bottomMenuHeight * 1.75) - safeBottom - 12;
+
+        final deltaUp = caretGlobal.dy - desiredBottom;
+        if (deltaUp > 0) {
+          final next = (_bodyScrollController.offset + deltaUp).clamp(
+            _bodyScrollController.position.minScrollExtent,
+            _bodyScrollController.position.maxScrollExtent,
+          );
+          _bodyScrollController.jumpTo(next);
+        }
+      } catch (_) {
+        // If layout isn't ready or caret rect isn't available, ignore.
+      }
+    }
+
+    if (after == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => run());
+      return;
+    }
+
+    Future.delayed(after, () {
+      if (!mounted) return;
+      WidgetsBinding.instance.addPostFrameCallback((_) => run());
+    });
+  }
+
+  @override
+  void didChangeMetrics() {
+    // When keyboard opens, do an immediate caret scroll and then
+    // a second "final" adjustment after the keyboard animation settles.
+    final view = WidgetsBinding.instance.platformDispatcher.views.first;
+    final insetLogical = view.viewInsets.bottom / view.devicePixelRatio;
+    final becameVisible = _lastKeyboardInset <= 0.0 && insetLogical > 0.0;
+    _lastKeyboardInset = insetLogical;
+
+    if (!becameVisible) return;
+    if (!mounted) return;
+    if (!noteFocus.hasFocus) return;
+
+    _scrollCaretIntoView();
+    _scrollCaretIntoView(after: const Duration(milliseconds: 180));
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _quillController.onSelectionChanged = _previousOnSelectionChanged;
+    _previousOnSelectionChanged = null;
+    titleFocus.dispose();
+    noteFocus.dispose();
+    _quillScrollController.dispose();
+    _bodyScrollController.dispose();
+    _quillController.dispose();
+    titleController.dispose();
+    super.dispose();
   }
 
   Document _loadDocument(String? raw) {
@@ -459,9 +569,16 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
               ),
               child: SafeArea(
                 child: ListView(
+                  controller: _bodyScrollController,
                   // Keep content scrollable behind the bottom editor bar.
                   // Keyboard insets are already handled by Scaffold + bottom bar.
-                  padding: const EdgeInsets.only(bottom: 120),
+                  padding: EdgeInsets.only(
+                    // Extra space so caret can be scrolled above the bottom menu
+                    // even when the keyboard is open.
+                    bottom:
+                        MediaQuery.of(context).viewInsets.bottom +
+                        (_bottomMenuHeight * 2),
+                  ),
                   children: [
                     if (_images.isNotEmpty)
                       Padding(
@@ -541,8 +658,13 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                           focusNode: noteFocus,
                           scrollController: _quillScrollController,
                           config: QuillEditorConfig(
+                            editorKey: _editorKey,
                             padding: EdgeInsets.zero,
                             expands: false,
+                            // Extra offset so caret isn't hidden by the bottom menu.
+                            scrollBottomInset:
+                                MediaQuery.of(context).viewInsets.bottom +
+                                (_bottomMenuHeight * 2),
                             // Let the outer ListView handle scrolling so the
                             // top of the note remains reachable when keyboard opens.
                             scrollable: false,
