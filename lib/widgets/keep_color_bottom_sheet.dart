@@ -36,12 +36,12 @@ class KeepColorBottomSheet {
               ),
               SizedBox(height: 12),
               Obx(
-                    () => KeepColorPicker(
+                () => KeepColorPicker(
                   selectedColor: colorController.selectedColor.value,
                   onColorSelected: colorController.changeColor,
                 ),
               ),
-               SizedBox(height: 12),
+              SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -58,7 +58,7 @@ class KeepColorBottomSheet {
                       // Commit color and close sheet
                       Navigator.pop(context);
                     },
-                    child:Text("Done"),
+                    child: Text("Done"),
                   ),
                 ],
               ),

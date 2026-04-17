@@ -250,48 +250,53 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      isScrollControlled: false,
+      isScrollControlled: true,
       builder: (_) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Color(0xFFF6FAF2),
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(height: 10),
-              ListTile(
-                leading: Icon(Icons.photo_camera_sharp),
-                title: Text('Take Photo'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImageFromCamera();
-                },
-              ),
-              SizedBox(height: 10),
-              ListTile(
-                leading: Icon(Icons.image_outlined),
-                title: Text('Add Image'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _pickImageFromGallery();
-                },
-              ),
-              // SizedBox(height: 10),
-              // ListTile(
-              //   leading: Icon(Icons.brush_outlined),
-              //   title: Text('Drawing'),
-              // ),
-              // SizedBox(height: 10),
-              // ListTile(leading: Icon(Icons.mic), title: Text('Recording')),
-              // SizedBox(height: 10),
-              // ListTile(
-              //   leading: Icon(Icons.check_box_outlined),
-              //   title: Text('Tick Boxes'),
-              // ),
-              SizedBox(height: 50),
-            ],
+          child: Container(
+            decoration: BoxDecoration(
+              color: Color(0xFFF6FAF2),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 10),
+                ListTile(
+                  leading: Icon(Icons.photo_camera_sharp),
+                  title: Text('Take Photo'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImageFromCamera();
+                  },
+                ),
+                SizedBox(height: 10),
+                ListTile(
+                  leading: Icon(Icons.image_outlined),
+                  title: Text('Add Image'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImageFromGallery();
+                  },
+                ),
+                // SizedBox(height: 10),
+                // ListTile(
+                //   leading: Icon(Icons.brush_outlined),
+                //   title: Text('Drawing'),
+                // ),
+                // SizedBox(height: 10),
+                // ListTile(leading: Icon(Icons.mic), title: Text('Recording')),
+                // SizedBox(height: 10),
+                // ListTile(
+                //   leading: Icon(Icons.check_box_outlined),
+                //   title: Text('Tick Boxes'),
+                // ),
+                SizedBox(height: 50),
+              ],
+            ),
           ),
         );
       },
@@ -457,111 +462,112 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                   // Keyboard insets are already handled by Scaffold + bottom bar.
                   padding: const EdgeInsets.only(bottom: 120),
                   children: [
-                      if (_images.isNotEmpty)
-                        Padding(
-                          padding: EdgeInsets.all(12),
-                          child: Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: List.generate(
-                              _images.length,
-                              (index) => Stack(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.file(
-                                      File(_images[index]),
-                                      width: 160,
-                                      height: 160,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, _, _) => SizedBox(),
-                                    ),
+                    if (_images.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.all(12),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: List.generate(
+                            _images.length,
+                            (index) => Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.file(
+                                    File(_images[index]),
+                                    width: 160,
+                                    height: 160,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, _, _) => SizedBox(),
                                   ),
-                                  Positioned(
-                                    top: 4,
-                                    right: 4,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _images.removeAt(index);
-                                        });
-                                        FocusScope.of(context)
-                                            .requestFocus(noteFocus);
-                                      },
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.black54,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        padding: EdgeInsets.all(4),
-                                        child: Icon(
-                                          Icons.close,
-                                          color: Colors.white,
-                                          size: 16,
-                                        ),
+                                ),
+                                Positioned(
+                                  top: 4,
+                                  right: 4,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _images.removeAt(index);
+                                      });
+                                      FocusScope.of(
+                                        context,
+                                      ).requestFocus(noteFocus);
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.black54,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      padding: EdgeInsets.all(4),
+                                      child: Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 16,
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: TextFormField(
-                          maxLines: null,
-                          minLines: 1,
-                          controller: titleController,
-                          focusNode: titleFocus,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: _isTitleFocused ? '' : 'Title',
-                            labelStyle: TextStyle(fontSize: 24),
-                            border: InputBorder.none,
-                          ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: TextFormField(
+                        maxLines: null,
+                        minLines: 1,
+                        controller: titleController,
+                        focusNode: titleFocus,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: _isTitleFocused ? '' : 'Title',
+                          labelStyle: TextStyle(fontSize: 24),
+                          border: InputBorder.none,
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(minHeight: 220),
-                          child: QuillEditor(
-                            controller: _quillController,
-                            focusNode: noteFocus,
-                            scrollController: _quillScrollController,
-                            config: QuillEditorConfig(
-                              padding: EdgeInsets.zero,
-                              expands: false,
-                              // Let the outer ListView handle scrolling so the
-                              // top of the note remains reachable when keyboard opens.
-                              scrollable: false,
-                              placeholder: 'Notes',
-                              customStyleBuilder: (attribute) {
-                                if (attribute.key == Attribute.font.key) {
-                                  final name = attribute.value?.toString();
-                                  if (name == null || name.isEmpty) {
-                                    return const TextStyle();
-                                  }
-                                  try {
-                                    return GoogleFonts.getFont(name);
-                                  } catch (_) {
-                                    return TextStyle(fontFamily: name);
-                                  }
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 220),
+                        child: QuillEditor(
+                          controller: _quillController,
+                          focusNode: noteFocus,
+                          scrollController: _quillScrollController,
+                          config: QuillEditorConfig(
+                            padding: EdgeInsets.zero,
+                            expands: false,
+                            // Let the outer ListView handle scrolling so the
+                            // top of the note remains reachable when keyboard opens.
+                            scrollable: false,
+                            placeholder: 'Notes',
+                            customStyleBuilder: (attribute) {
+                              if (attribute.key == Attribute.font.key) {
+                                final name = attribute.value?.toString();
+                                if (name == null || name.isEmpty) {
+                                  return const TextStyle();
                                 }
-                                return const TextStyle();
-                              },
-                            ),
+                                try {
+                                  return GoogleFonts.getFont(name);
+                                } catch (_) {
+                                  return TextStyle(fontFamily: name);
+                                }
+                              }
+                              return const TextStyle();
+                            },
                           ),
                         ),
                       ),
-                      if (widget.note?.reminderAt != null)
-                        _reminderChip(widget.note!),
-                      const SizedBox(height: 12),
-                    ],
+                    ),
+                    if (widget.note?.reminderAt != null)
+                      _reminderChip(widget.note!),
+                    const SizedBox(height: 12),
+                  ],
                 ),
               ),
             ),
@@ -583,9 +589,10 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                   KeepRichTextToolbar(controller: _quillController),
 
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
                   color: colorController.selectedColor.value,
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -608,7 +615,8 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                         onPressed: () {
                           KeepColorBottomSheet.show(context);
                           Future.microtask(
-                            () => FocusScope.of(context).requestFocus(noteFocus),
+                            () =>
+                                FocusScope.of(context).requestFocus(noteFocus),
                           );
                         },
                         child: Icon(Icons.color_lens_outlined),
@@ -625,7 +633,6 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                         },
                         child: Icon(Icons.text_format),
                       ),
-                      Spacer(),
                       // ElevatedButton(
                       //   style: ElevatedButton.styleFrom(
                       //     shape: StadiumBorder(),
@@ -676,7 +683,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.notifications, color: Color(0xFF8AA072),),
+          Icon(Icons.notifications, color: Color(0xFF8AA072)),
           SizedBox(width: 6),
           Text(
             DateFormat('EEE, MMM d • hh:mm a').format(note.reminderAt!),
