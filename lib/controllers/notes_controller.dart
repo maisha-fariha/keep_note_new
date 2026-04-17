@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:keep_note_new/models/notes_model.dart';
+import 'package:keep_note_new/services/notes_database.dart';
 import 'package:keep_note_new/services/reminder_services.dart';
+import 'dart:async';
 
 enum ReminderViewMode { grid, list }
 
@@ -10,20 +11,18 @@ enum ArchiveViewMode { grid, list }
 
 class NotesController extends GetxController {
   final RxList<NotesModel> notes = <NotesModel>[].obs;
-  final GetStorage _box = GetStorage();
   final Rx<ReminderViewMode> reminderViewMode = ReminderViewMode.list.obs;
   final Rx<ArchiveViewMode> archiveViewMode = ArchiveViewMode.list.obs;
   RxString searchQuery = ''.obs;
-
-  static final String _storageKey = 'notes';
+  final NotesDatabase _db = NotesDatabase.instance;
 
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
-    loadNotes();
+    unawaited(loadNotes());
     autoDeleteExpiredNotes();
-    saveNotes();
+    unawaited(saveNotes());
   }
 
   List<NotesModel> get searchedNotes {
@@ -92,22 +91,14 @@ class NotesController extends GetxController {
     return selectedNotes.isNotEmpty && selectedNotes.every((n) => n.isPinned);
   }
 
-  void loadNotes() {
-    final storedNotes = _box.read<List>(_storageKey);
-    print(GetStorage().read('notes'));
-
-    if (storedNotes != null && storedNotes.isNotEmpty) {
-      notes.assignAll(
-        storedNotes.map(
-          (e) => NotesModel.fromMap(Map<String, dynamic>.from(e)),
-        ),
-      );
-    }
+  Future<void> loadNotes() async {
+    final storedNotes = await _db.getAllNotes();
+    notes.assignAll(storedNotes);
   }
 
   void addNotes(NotesModel note) {
     notes.add(note);
-    saveNotes();
+    unawaited(_db.upsert(note));
     notes.refresh();
   }
 
@@ -115,13 +106,13 @@ class NotesController extends GetxController {
     final index = notes.indexWhere((n) => n.id == note.id);
     if (index != -1) {
       notes[index] = note;
-      saveNotes();
+      unawaited(_db.upsert(note));
       notes.refresh();
     }
   }
 
-  void saveNotes() {
-    _box.write(_storageKey, notes.map((e) => e.toMap()).toList());
+  Future<void> saveNotes() async {
+    await _db.upsertMany(notes);
   }
 
   void deleteNotes(Set<String> ids) {
@@ -130,18 +121,18 @@ class NotesController extends GetxController {
     for (int i = 0; i < notes.length; i++) {
       if (ids.contains(notes[i].id)) {
         notes[i] = notes[i].copyWith(isDeleted: true, deletedAt: now);
+        unawaited(_db.upsert(notes[i]));
       }
     }
-    saveNotes();
   }
 
   void archiveNotes(Set<String> ids) {
     for (int i = 0; i < notes.length; i++) {
       if (ids.contains(notes[i].id)) {
         notes[i] = notes[i].copyWith(isArchived: true);
+        unawaited(_db.upsert(notes[i]));
       }
     }
-    saveNotes();
     notes.refresh();
   }
 
@@ -149,9 +140,9 @@ class NotesController extends GetxController {
     for (int i = 0; i < notes.length; i++) {
       if (ids.contains(notes[i].id)) {
         notes[i] = notes[i].copyWith(isArchived: false);
+        unawaited(_db.upsert(notes[i]));
       }
     }
-    saveNotes();
     notes.refresh();
   }
 
@@ -164,9 +155,9 @@ class NotesController extends GetxController {
     for (int i = 0; i < notes.length; i++) {
       if (ids.contains(notes[i].id)) {
         notes[i] = notes[i].copyWith(isDeleted: false, deletedAt: null);
+        unawaited(_db.upsert(notes[i]));
       }
     }
-    saveNotes();
   }
 
   void autoDeleteExpiredNotes() {
@@ -180,8 +171,9 @@ class NotesController extends GetxController {
   }
 
   void emptyBin() {
+    final ids = notes.where((n) => n.isDeleted).map((e) => e.id).toSet();
     notes.removeWhere((note) => note.isDeleted);
-    saveNotes();
+    unawaited(_db.deleteByIds(ids));
     notes.refresh();
   }
 
@@ -192,13 +184,13 @@ class NotesController extends GetxController {
     final note = notes[index];
 
     notes[index] = note.copyWith(reminderAt: time);
-    saveNotes();
+    unawaited(_db.upsert(notes[index]));
     notes.refresh();
 
     ReminderServices.schedule(
       noteId: note.id,
       title: note.title,
-      body: note.content,
+      body: note.plainContent,
       time: time,
     );
   }
@@ -208,10 +200,10 @@ class NotesController extends GetxController {
     if (index == -1) return;
 
     notes[index] = notes[index].copyWith(reminderAt: null);
+    unawaited(_db.upsert(notes[index]));
 
     ReminderServices.cancel(noteId);
 
-    saveNotes();
     notes.refresh();
   }
 
@@ -219,7 +211,7 @@ class NotesController extends GetxController {
     final index = notes.indexWhere((n) => n.id == noteId);
     if (index != -1) {
       notes[index] = notes[index].copyWith(color: color.value);
-      saveNotes();   // persist change
+      unawaited(_db.upsert(notes[index])); // persist change
       notes.refresh(); // update UI
     }
   }

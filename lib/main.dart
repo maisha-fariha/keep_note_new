@@ -6,11 +6,13 @@ import 'package:keep_note_new/controllers/main_screen_controller.dart';
 import 'package:keep_note_new/controllers/notes_controller.dart';
 import 'package:keep_note_new/controllers/text_style_controller.dart';
 import 'package:keep_note_new/screens/main_screen.dart';
+import 'package:keep_note_new/services/notes_database.dart';
 import 'package:keep_note_new/services/reminder_services.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
+  await NotesDatabase.instance.init();
   await ReminderServices.init();
 
   Get.put(ColorController(), permanent: true);
