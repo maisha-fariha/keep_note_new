@@ -362,12 +362,12 @@ class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
                     .containsKey(Attribute.link.key),
                 onTap: _showLinkSheet,
               ),
-              const VerticalDivider(width: 24),
+              const SizedBox(width: 6),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: DropdownButtonHideUnderline(
                   child: SizedBox(
-                    width: 130,
+                    width: 110,
                     child: DropdownButton<String>(
                       value: _currentFont,
                       isExpanded: true,
@@ -392,23 +392,27 @@ class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _currentSize,
-                    items: _sizes
-                        .map(
-                          (s) => DropdownMenuItem<String>(
-                            value: s,
-                            child: Text('${s}px'),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (val) {
-                      if (val == null) return;
-                      setState(() => _currentSize = val);
-                      _setSize(val);
-                    },
+                  child: SizedBox(
+                    width: 72,
+                    child: DropdownButton<String>(
+                      value: _currentSize,
+                      isExpanded: true,
+                      items: _sizes
+                          .map(
+                            (s) => DropdownMenuItem<String>(
+                              value: s,
+                              child: Text('${s}px'),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (val) {
+                        if (val == null) return;
+                        setState(() => _currentSize = val);
+                        _setSize(val);
+                      },
+                    ),
                   ),
                 ),
               ),
