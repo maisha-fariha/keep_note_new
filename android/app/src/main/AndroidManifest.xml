@@ -2,7 +2,7 @@
     package="net.encoderit.encoderkeepnote">
 
     <application
-        android:label="encoderkeepnote"
+        android:label="Encoder Keep Note"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
