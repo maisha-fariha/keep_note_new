@@ -452,111 +452,116 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                 color: colorController.selectedColor.value,
               ),
               child: SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: ListView(
+                  // Keep content scrollable behind the bottom editor bar.
+                  // Keyboard insets are already handled by Scaffold + bottom bar.
+                  padding: const EdgeInsets.only(bottom: 120),
                   children: [
-                    if (_images.isNotEmpty)
-                      Padding(
-                        padding: EdgeInsets.all(12),
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: List.generate(
-                            _images.length,
-                            (index) => Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Image.file(
-                                    File(_images[index]),
-                                    width: 160,
-                                    height: 160,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, _, _) => SizedBox(),
+                      if (_images.isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.all(12),
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: List.generate(
+                              _images.length,
+                              (index) => Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Image.file(
+                                      File(_images[index]),
+                                      width: 160,
+                                      height: 160,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, _, _) => SizedBox(),
+                                    ),
                                   ),
-                                ),
-                                Positioned(
-                                  top: 4,
-                                  right: 4,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        _images.removeAt(index);
-                                      });
-                                      FocusScope.of(context)
-                                          .requestFocus(noteFocus);
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.black54,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      padding: EdgeInsets.all(4),
-                                      child: Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 16,
+                                  Positioned(
+                                    top: 4,
+                                    right: 4,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _images.removeAt(index);
+                                        });
+                                        FocusScope.of(context)
+                                            .requestFocus(noteFocus);
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black54,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        padding: EdgeInsets.all(4),
+                                        child: Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: TextFormField(
+                          maxLines: null,
+                          minLines: 1,
+                          controller: titleController,
+                          focusNode: titleFocus,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: _isTitleFocused ? '' : 'Title',
+                            labelStyle: TextStyle(fontSize: 24),
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 220),
+                          child: QuillEditor(
+                            controller: _quillController,
+                            focusNode: noteFocus,
+                            scrollController: _quillScrollController,
+                            config: QuillEditorConfig(
+                              padding: EdgeInsets.zero,
+                              expands: false,
+                              // Let the outer ListView handle scrolling so the
+                              // top of the note remains reachable when keyboard opens.
+                              scrollable: false,
+                              placeholder: 'Notes',
+                              customStyleBuilder: (attribute) {
+                                if (attribute.key == Attribute.font.key) {
+                                  final name = attribute.value?.toString();
+                                  if (name == null || name.isEmpty) {
+                                    return const TextStyle();
+                                  }
+                                  try {
+                                    return GoogleFonts.getFont(name);
+                                  } catch (_) {
+                                    return TextStyle(fontFamily: name);
+                                  }
+                                }
+                                return const TextStyle();
+                              },
                             ),
                           ),
                         ),
                       ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: TextFormField(
-                        maxLines: null,
-                        minLines: 1,
-                        controller: titleController,
-                        focusNode: titleFocus,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: _isTitleFocused ? '' : 'Title',
-                          labelStyle: TextStyle(fontSize: 24),
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Container(
-                        constraints: const BoxConstraints(minHeight: 140),
-                        child: QuillEditor(
-                          controller: _quillController,
-                          focusNode: noteFocus,
-                          scrollController: _quillScrollController,
-                          config: QuillEditorConfig(
-                            padding: EdgeInsets.zero,
-                            expands: false,
-                            placeholder: 'Notes',
-                            customStyleBuilder: (attribute) {
-                              if (attribute.key == Attribute.font.key) {
-                                final name = attribute.value?.toString();
-                                if (name == null || name.isEmpty) {
-                                  return const TextStyle();
-                                }
-                                try {
-                                  return GoogleFonts.getFont(name);
-                                } catch (_) {
-                                  return TextStyle(fontFamily: name);
-                                }
-                              }
-                              return const TextStyle();
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    if (widget.note?.reminderAt != null)
-                      _reminderChip(widget.note!),
-                  ],
+                      if (widget.note?.reminderAt != null)
+                        _reminderChip(widget.note!),
+                      const SizedBox(height: 12),
+                    ],
                 ),
               ),
             ),
