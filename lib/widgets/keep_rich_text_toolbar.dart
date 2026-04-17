@@ -29,6 +29,7 @@ class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
   String _currentSize = '16';
   String _currentFont = 'Default';
   StreamSubscription<dynamic>? _changesSub;
+  void Function(TextSelection textSelection)? _previousOnSelectionChanged;
 
   @override
   void initState() {
@@ -54,14 +55,27 @@ class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
   }
 
   void _attachController(QuillController controller) {
-    // Selection moves don't always trigger controller listeners reliably across
-    // versions; the changes stream covers selection + doc changes.
+    // Listen to both document edits and cursor/selection changes.
     _changesSub = controller.changes.listen((_) => _syncFromSelection());
+
+    _previousOnSelectionChanged = controller.onSelectionChanged;
+    controller.onSelectionChanged = (selection) {
+      _previousOnSelectionChanged?.call(selection);
+      _syncFromSelection();
+    };
   }
 
   void _detachController() {
     _changesSub?.cancel();
     _changesSub = null;
+
+    // Restore external selection handler (if any).
+    if (_previousOnSelectionChanged != null) {
+      widget.controller.onSelectionChanged = _previousOnSelectionChanged;
+    } else {
+      widget.controller.onSelectionChanged = null;
+    }
+    _previousOnSelectionChanged = null;
   }
 
   void _syncFromSelection() {
