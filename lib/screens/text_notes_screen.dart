@@ -297,66 +297,6 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
     );
   }
 
-  // void showMoreBottomSheet(BuildContext context) {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     backgroundColor: Colors.transparent,
-  //     isScrollControlled: false,
-  //     builder: (_) {
-  //       return Container(
-  //         decoration: BoxDecoration(
-  //           color: Color(0xFFF6FAF2),
-  //           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-  //         ),
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             SizedBox(height: 10),
-  //             ListTile(
-  //               title: Text(
-  //                 'Edited at 6:00 pm',
-  //                 style: TextStyle(fontWeight: FontWeight.bold),
-  //               ),
-  //             ),
-  //             SizedBox(height: 5),
-  //             ListTile(
-  //               leading: Icon(CupertinoIcons.delete),
-  //               title: Text('Delete'),
-  //               onTap: () {},
-  //             ),
-  //             SizedBox(height: 5),
-  //             ListTile(
-  //               leading: Icon(Icons.copy_rounded),
-  //               title: Text('Make a copy'),
-  //             ),
-  //             SizedBox(height: 5),
-  //             ListTile(
-  //               leading: Icon(Icons.share_outlined),
-  //               title: Text('Send'),
-  //             ),
-  //             SizedBox(height: 5),
-  //             ListTile(
-  //               leading: Icon(Icons.person_add_alt_1),
-  //               title: Text('Collaborators'),
-  //             ),
-  //             SizedBox(height: 5),
-  //             ListTile(
-  //               leading: Icon(Icons.label_outline),
-  //               title: Text('Labels'),
-  //             ),
-  //             SizedBox(height: 5),
-  //             ListTile(
-  //               leading: Icon(Icons.help_outline_outlined),
-  //               title: Text('Help & feedback'),
-  //             ),
-  //             SizedBox(height: 50),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
   Future<void> _pickCustomDateTime(BuildContext context) async {
     final date = await showDatePicker(
       context: context,
@@ -571,7 +511,10 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                         minLines: 1,
                         controller: titleController,
                         focusNode: titleFocus,
-                        style: TextStyle(fontSize: 24),
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                        ),
                         decoration: InputDecoration(
                           hintText: _isTitleFocused ? '' : 'Title',
                           labelStyle: TextStyle(fontSize: 24),
