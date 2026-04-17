@@ -14,7 +14,18 @@ class KeepRichTextToolbar extends StatefulWidget {
 }
 
 class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
-  static const _sizes = <String>['12', '14', '16', '18', '20', '24', '28', '32'];
+  static const _sizes = <String>[
+    '12',
+    '14',
+    '16',
+    '18',
+    '20',
+    '24',
+    '28',
+    '32',
+    '36',
+    '48'
+  ];
   static const _fonts = <String>[
     'Default',
     'Roboto',
