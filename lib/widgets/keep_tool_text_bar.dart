@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/text_style_controller.dart';
+import '../widgets/keep_text_color_bottom_sheet.dart';
 
 class KeepToolTextBar extends StatelessWidget {
   const KeepToolTextBar({super.key});
@@ -14,7 +15,7 @@ class KeepToolTextBar extends StatelessWidget {
       elevation: 4,
       color: Color(0xFFF6FAF2),
       child: SizedBox(
-        height: 48,
+        height: 52,
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Obx(() => Row(
@@ -35,6 +36,64 @@ class KeepToolTextBar extends StatelessWidget {
                   controller.italic.toggle, controller.italic.value),
               _btn(Icons.format_underline,
                   controller.underline.toggle, controller.underline.value),
+              const VerticalDivider(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: TextStyleController.availableFonts.contains(
+                            controller.fontFamily.value)
+                        ? controller.fontFamily.value
+                        : 'Default',
+                    items: TextStyleController.availableFonts
+                        .map(
+                          (f) => DropdownMenuItem<String>(
+                            value: f,
+                            child: Text(
+                              f,
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (val) {
+                      if (val == null) return;
+                      controller.fontFamily.value = val;
+                    },
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  KeepTextColorBottomSheet.show(
+                    context,
+                    selectedColor: Color(controller.textColor.value),
+                    onColorSelected: (c) =>
+                        controller.textColor.value = c.toARGB32(),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.format_color_text, size: 20),
+                      const SizedBox(width: 6),
+                      Container(
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: Color(controller.textColor.value),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.grey.shade500),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               SizedBox(width: 16,),
               IconButton(
                 icon:Icon(Icons.close),

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:keep_note_new/controllers/color_controller.dart';
@@ -106,6 +105,8 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       italic: style.italic.value,
       underline: style.underline.value,
       heading: style.heading.value.name,
+      fontFamily: style.fontFamily.value,
+      textColor: style.textColor.value,
 
       isPinned: isPinned,
       images: _images,
@@ -360,6 +361,8 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       italic: styleController.italic.value,
       underline: styleController.underline.value,
       heading: styleController.heading.value.name,
+      fontFamily: styleController.fontFamily.value,
+      textColor: styleController.textColor.value,
       reminderAt: time,
     );
 
@@ -458,6 +461,8 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                       italic: style.italic.value,
                       underline: style.underline.value,
                       heading: style.heading.value.name,
+                      fontFamily: style.fontFamily.value,
+                      textColor: style.textColor.value,
                       reminderAt: widget.note?.reminderAt,
                       isArchived: true,
                     );

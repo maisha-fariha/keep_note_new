@@ -8,6 +8,8 @@ class NotesModel {
   final bool italic;
   final bool underline;
   final String heading;
+  final String fontFamily;
+  final int textColor;
 
   final List<String> images;
 
@@ -26,6 +28,8 @@ class NotesModel {
     required this.italic,
     required this.underline,
     required this.heading,
+    String? fontFamily,
+    int? textColor,
     this.isPinned = false,
     this.isDeleted = false,
     this.isArchived = false,
@@ -33,6 +37,8 @@ class NotesModel {
     this.reminderAt,
     List<String>? images,
   }) : color = color ?? 0xFFFFFFFF,
+       fontFamily = fontFamily ?? 'Default',
+       textColor = textColor ?? 0xFF000000,
        images = images ?? [];
 
   Map<String, dynamic> toMap() {
@@ -45,6 +51,8 @@ class NotesModel {
       'italic': italic ? 1 : 0,
       'underline': underline ? 1 : 0,
       'heading': heading,
+      'fontFamily': fontFamily,
+      'textColor': textColor,
       'isPinned': isPinned ? 1 : 0,
       'isDeleted': isDeleted ? 1 : 0,
       'isArchived': isArchived ? 1 : 0,
@@ -64,6 +72,8 @@ class NotesModel {
       italic: (map['italic'] ?? 0) == 1,
       underline: (map['underline'] ?? 0) == 1,
       heading: map['heading'] ?? 'normal',
+      fontFamily: map['fontFamily'] ?? 'Default',
+      textColor: map['textColor'] ?? 0xFF000000,
       isPinned: map['isPinned'] == 1,
       isDeleted: map['isDeleted'] == 1,
       isArchived: map['isArchived'] == 1,
@@ -85,6 +95,8 @@ class NotesModel {
     bool? italic,
     bool? underline,
     String? heading,
+    String? fontFamily,
+    int? textColor,
     List<String>? images,
     bool? isPinned,
     bool? isDeleted,
@@ -101,6 +113,8 @@ class NotesModel {
       italic: italic ?? this.italic,
       underline: underline ?? this.underline,
       heading: heading ?? this.heading,
+      fontFamily: fontFamily ?? this.fontFamily,
+      textColor: textColor ?? this.textColor,
       images: images ?? this.images,
       isPinned: isPinned ?? this.isPinned,
       isDeleted: isDeleted ?? this.isDeleted,
