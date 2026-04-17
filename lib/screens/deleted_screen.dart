@@ -9,6 +9,8 @@ import '../models/notes_model.dart';
 import '../widgets/keep_drawer.dart';
 
 class DeletedScreen extends StatefulWidget {
+  const DeletedScreen({super.key});
+
   @override
   State<DeletedScreen> createState() => _DeletedScreenState();
 }
@@ -52,7 +54,7 @@ class _DeletedScreenState extends State<DeletedScreen> {
     return Scaffold(
       backgroundColor: Color(0xFFF6FAF2),
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(100),
+        preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Obx(() {
           return controller.selectionMode.value
               ? _contextualAppBar()
@@ -86,7 +88,6 @@ class _DeletedScreenState extends State<DeletedScreen> {
 
   PreferredSizeWidget _normalAppBar() {
     return AppBar(
-      toolbarHeight: 100,
       backgroundColor: Color(0xFFB5C99A),
       title: const Text('Deleted'),
       actions: [
@@ -108,7 +109,6 @@ class _DeletedScreenState extends State<DeletedScreen> {
 
   PreferredSizeWidget _contextualAppBar() {
     return AppBar(
-      toolbarHeight: 100,
       backgroundColor: Color(0xFFB5C99A),
       leading: IconButton(
         icon: const Icon(Icons.close),

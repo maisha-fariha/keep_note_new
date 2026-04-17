@@ -28,16 +28,12 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       backgroundColor: Color(0xFFF6FAF2),
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(120),
-        child: Container(
-          height: 120,
-          decoration: BoxDecoration(color: Color(0xFFB5C99A)),
-          child: Obx(() {
-            return controller.selectionMode.value
-                ? _contextualAppBar()
-                : _normalAppBar();
-          }),
-        ),
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Obx(() {
+          return controller.selectionMode.value
+              ? _contextualAppBar()
+              : _normalAppBar();
+        }),
       ),
       drawer: KeepDrawer(),
       body: Obx(() {
@@ -111,7 +107,6 @@ class _MainScreenState extends State<MainScreen> {
 
   PreferredSizeWidget _normalAppBar() {
     return AppBar(
-      toolbarHeight: 100,
       backgroundColor: Color(0xFFB5C99A),
       leading: Builder(
         builder: (context) => Padding(
@@ -125,47 +120,40 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
       centerTitle: true,
-      title: Align(
-        alignment: Alignment.bottomCenter,
-        child: Padding(
-          padding: const EdgeInsets.only(top: 50, bottom: 40),
-          child: Container(
-            height: 50,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              color: Color(0xFFE6E6CC),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                    flex: 3,
-                    child: SearchBar(
-                      onTap: () {
-                        Get.to(() => SearchScreen());
-                      },
-                      hintText: 'Search Text...',
-                      elevation: WidgetStateProperty.all(0),
-                      backgroundColor: WidgetStateProperty.all(Color(0xFFE6E6CC)),
-                    ),
-                  ),
-                Expanded(
-                  flex: 1,
-                  child: Obx(
-                    () => IconButton(
-                      onPressed: controller.toggleView,
-                      icon: Icon(
-                        controller.view.value == NotesView.grid
-                            ? Icons.view_agenda_outlined
-                            : Icons.grid_view,
-                      ),
+      title: SizedBox(
+        height: 40,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            color: Color(0xFFE6E6CC),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: SearchBar(
+                  onTap: () {
+                    Get.to(() => SearchScreen());
+                  },
+                  hintText: 'Search Text...',
+                  elevation: WidgetStateProperty.all(0),
+                  backgroundColor: WidgetStateProperty.all(Color(0xFFE6E6CC)),
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Obx(
+                  () => IconButton(
+                    onPressed: controller.toggleView,
+                    icon: Icon(
+                      controller.view.value == NotesView.grid
+                          ? Icons.view_agenda_outlined
+                          : Icons.grid_view,
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -174,7 +162,6 @@ class _MainScreenState extends State<MainScreen> {
 
   PreferredSizeWidget _contextualAppBar() {
     return AppBar(
-      toolbarHeight: 100,
       backgroundColor: Color(0xFFB5C99A),
       leading: Padding(
         padding: const EdgeInsets.all(16.0),

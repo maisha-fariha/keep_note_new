@@ -401,97 +401,73 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       child: Scaffold(
         backgroundColor: Color(0xFFF6FAF2),
         resizeToAvoidBottomInset: true,
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(120),
-          child: AppBar(
-            toolbarHeight: 100,
-            backgroundColor: Color(0xFFB5C99A),
-            leading: Padding(
-              padding: const EdgeInsets.all(16.0),
+        appBar: AppBar(
+          backgroundColor: Color(0xFFB5C99A),
+          leading: IconButton(
+            onPressed: _saveAndBack,
+            icon: Icon(Icons.arrow_back),
+          ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  isPinned = !isPinned;
+                });
+
+                if (widget.note != null) {
+                  final updated = widget.note!.copyWith(isPinned: isPinned);
+                  notesController.updateNote(updated);
+                }
+
+                Get.snackbar(
+                  isPinned ? 'Note Pinned' : 'Note unpinned',
+                  '',
+                  snackPosition: SnackPosition.BOTTOM,
+                  duration: Duration(seconds: 1),
+                );
+              },
+              icon: Icon(isPinned ? Icons.push_pin : Icons.push_pin_outlined),
+            ),
+            IconButton(
+              onPressed: () {
+                showReminderBottomSheet(context);
+              },
+              icon: Icon(Icons.add_alert_outlined),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
               child: IconButton(
-                onPressed: _saveAndBack,
-                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  final style = Get.find<TextStyleController>();
+
+                  final note = NotesModel(
+                    id:
+                        widget.note?.id ??
+                        DateTime.now().millisecondsSinceEpoch.toString(),
+                    title: titleController.text,
+                    content: noteController.text,
+                    color: colorController.selectedColor.value.value,
+                    bold: style.bold.value,
+                    italic: style.italic.value,
+                    underline: style.underline.value,
+                    heading: style.heading.value.name,
+                    fontFamily: style.fontFamily.value,
+                    textColor: style.textColor.value,
+                    reminderAt: widget.note?.reminderAt,
+                    isArchived: true,
+                  );
+
+                  if (widget.note == null) {
+                    notesController.addNotes(note);
+                  } else {
+                    notesController.updateNote(note);
+                  }
+                  Get.back();
+                },
+                icon: Icon(Icons.archive_outlined),
               ),
             ),
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    isPinned = !isPinned;
-                  });
-
-                  if (widget.note != null) {
-                    final updated = widget.note!.copyWith(isPinned: isPinned);
-                    notesController.updateNote(updated);
-                  }
-
-                  Get.snackbar(
-                    isPinned ? 'Note Pinned' : 'Note unpinned',
-                    '',
-                    snackPosition: SnackPosition.BOTTOM,
-                    duration: Duration(seconds: 1),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: StadiumBorder(),
-                  backgroundColor: Color(0xFFE6E6CC),
-                ),
-                child: Icon(
-                  isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                  size: 25,
-                ),
-              ),
-              SizedBox(width: 5),
-              ElevatedButton(
-                onPressed: () {
-                  showReminderBottomSheet(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: StadiumBorder(),
-                  backgroundColor: Color(0xFFE6E6CC),
-                ),
-                child: Icon(Icons.add_alert_outlined, size: 25),
-              ),
-              SizedBox(width: 5),
-              Padding(
-                padding: const EdgeInsets.only(right: 16.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    final style = Get.find<TextStyleController>();
-
-                    final note = NotesModel(
-                      id:
-                          widget.note?.id ??
-                          DateTime.now().millisecondsSinceEpoch.toString(),
-                      title: titleController.text,
-                      content: noteController.text,
-                      color: colorController.selectedColor.value.value,
-                      bold: style.bold.value,
-                      italic: style.italic.value,
-                      underline: style.underline.value,
-                      heading: style.heading.value.name,
-                      fontFamily: style.fontFamily.value,
-                      textColor: style.textColor.value,
-                      reminderAt: widget.note?.reminderAt,
-                      isArchived: true,
-                    );
-
-                    if (widget.note == null) {
-                      notesController.addNotes(note);
-                    } else {
-                      notesController.updateNote(note);
-                    }
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: StadiumBorder(),
-                    backgroundColor: Color(0xFFE6E6CC),
-                  ),
-                  child: Icon(Icons.archive_outlined, size: 25),
-                ),
-              ),
-            ],
-          ),
+          ],
         ),
         body: Obx(
           () => GestureDetector(

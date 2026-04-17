@@ -16,48 +16,53 @@ class SearchScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFF6FAF2),
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100),
-        child: AppBar(
-          toolbarHeight: 100,
-          backgroundColor: Color(0xFFB5C99A),
-          elevation: 0,
-          leading: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: IconButton(
-              onPressed: () {
-                notesController.clearSearch();
-                Get.back();
-              },
-              icon: Icon(Icons.arrow_back),
-            ),
-          ),
-          title: TextField(
+      appBar: AppBar(
+        backgroundColor: Color(0xFFB5C99A),
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: () {
+            notesController.clearSearch();
+            Get.back();
+          },
+          icon: Icon(Icons.arrow_back),
+        ),
+        title: SizedBox(
+          height: 40,
+          child: TextField(
             controller: searchController,
             autofocus: true,
+            textAlignVertical: TextAlignVertical.center,
             onChanged: notesController.updateSearch,
             decoration: InputDecoration(
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
               hintText: 'Search Keep Note',
-              border: InputBorder.none,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: const Color(0xFFE6E6CC),
             ),
           ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Obx(
-                () => notesController.searchQuery.isEmpty
-                    ? IconButton(
-                        onPressed: () {
-                          searchController.clear();
-                          notesController.clearSearch();
-                        },
-                        icon: Icon(Icons.close),
-                      )
-                    : SizedBox(),
-              ),
-            ),
-          ],
         ),
+        actions: [
+          Obx(
+            () => notesController.searchQuery.isEmpty
+                ? const SizedBox.shrink()
+                : IconButton(
+                    onPressed: () {
+                      searchController.clear();
+                      notesController.clearSearch();
+                    },
+                    icon: const Icon(Icons.close),
+                  ),
+          ),
+        ],
       ),
       body: Obx(() {
         final results = notesController.searchedNotes;

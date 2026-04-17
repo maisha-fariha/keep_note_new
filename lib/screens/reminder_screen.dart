@@ -22,45 +22,33 @@ class _ReminderScreenState extends State<ReminderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFF6FAF2),
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100),
-        child: AppBar(
-          toolbarHeight: 100,
-          backgroundColor: Color(0xFFB5C99A),
-          leading: Builder(
-            builder: (context) {
-              return Padding(
-                padding: EdgeInsets.all(16.0),
-                child: IconButton(
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
-                  icon: Icon(Icons.menu),
-                ),
-              );
+      appBar: AppBar(
+        backgroundColor: Color(0xFFB5C99A),
+        leading: Builder(
+          builder: (context) => IconButton(
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
             },
+            icon: Icon(Icons.menu),
           ),
-          title:  Padding(
-            padding: EdgeInsets.all(16),
-            child: Text('Reminder'),
-          ),
-          actions: [
-            IconButton(onPressed: () {
-              Get.to(() => SearchScreen());
-            }, icon: Icon(Icons.search)),
-            Obx(() {
-              final isGrid =
-                  notesController.reminderViewMode.value == ReminderViewMode.grid;
-              return Padding(
-                padding: EdgeInsets.all(16.0),
-                child: IconButton(
-                  onPressed: notesController.toggleReminderView,
-                  icon: Icon(isGrid ? Icons.view_agenda_outlined : Icons.grid_view),
-                ),
-              );
-            }),
-          ],
         ),
+        title: Text('Reminder'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Get.to(() => SearchScreen());
+            },
+            icon: Icon(Icons.search),
+          ),
+          Obx(() {
+            final isGrid =
+                notesController.reminderViewMode.value == ReminderViewMode.grid;
+            return IconButton(
+              onPressed: notesController.toggleReminderView,
+              icon: Icon(isGrid ? Icons.view_agenda_outlined : Icons.grid_view),
+            );
+          }),
+        ],
       ),
       drawer: KeepDrawer(),
       body: Obx(() {

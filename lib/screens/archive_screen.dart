@@ -23,46 +23,34 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFF6FAF2),
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100),
-        child: AppBar(
-          toolbarHeight: 100,
-          backgroundColor: Color(0xFFB5C99A),
-          leading: Builder(
-            builder: (context) => Padding(
-              padding: const EdgeInsets.all(16),
-              child: IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () => Scaffold.of(context).openDrawer(),
-              ),
-            ),
+      appBar: AppBar(
+        backgroundColor: Color(0xFFB5C99A),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
-          title: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: const Text('Archive'),
-          ),
-          actions: [
-            IconButton(onPressed: () {
-              Get.to(() => SearchScreen());
-            }, icon: const Icon(Icons.search)),
-            Obx(() {
-              final isGrid =
-                  notesController.archiveViewMode.value == ArchiveViewMode.grid;
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: IconButton(
-                  icon: Icon(
-                    isGrid ? Icons.view_agenda_outlined : Icons.grid_view,
-                  ),
-                  onPressed: () {
-                    notesController.archiveViewMode.value =
-                    isGrid ? ArchiveViewMode.list : ArchiveViewMode.grid;
-                  },
-                ),
-              );
-            }),
-          ],
         ),
+        title: const Text('Archive'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Get.to(() => SearchScreen());
+            },
+            icon: const Icon(Icons.search),
+          ),
+          Obx(() {
+            final isGrid =
+                notesController.archiveViewMode.value == ArchiveViewMode.grid;
+            return IconButton(
+              icon: Icon(isGrid ? Icons.view_agenda_outlined : Icons.grid_view),
+              onPressed: () {
+                notesController.archiveViewMode.value =
+                    isGrid ? ArchiveViewMode.list : ArchiveViewMode.grid;
+              },
+            );
+          }),
+        ],
       ),
       drawer: KeepDrawer(),
       body: Obx(() {
@@ -116,7 +104,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Color(note.color ?? Colors.white.value),
+          color: Color(note.color),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -147,10 +135,10 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
               ),
 
 
-            if (note.content?.isNotEmpty == true) ...[
+            if (note.content.isNotEmpty) ...[
               const SizedBox(height: 6),
               Text(
-                note.content!,
+                note.content,
                 maxLines: 6,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -176,7 +164,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
 
   Widget _archiveListCard(NotesModel note) {
     return Card(
-      color: Color(note.color ?? Colors.white.value),
+      color: Color(note.color),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -184,9 +172,9 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
         title: Text(
           note.title.isNotEmpty ? note.title : 'No Title',
         ),
-        subtitle: note.content?.isNotEmpty == true
+        subtitle: note.content.isNotEmpty
             ? Text(
-          note.content!,
+          note.content,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         )
