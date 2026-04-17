@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:keep_note_new/widgets/keep_text_color_bottom_sheet.dart';
+import 'dart:async';
+import 'package:google_fonts/google_fonts.dart';
 
 class KeepRichTextToolbar extends StatefulWidget {
   final QuillController controller;
@@ -13,14 +15,25 @@ class KeepRichTextToolbar extends StatefulWidget {
 
 class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
   static const _sizes = <String>['12', '14', '16', '18', '20', '24', '28', '32'];
+  static const _fonts = <String>[
+    'Default',
+    'Roboto',
+    'Lato',
+    'Poppins',
+    'Merriweather',
+    'Source Sans Pro',
+    'Fira Sans',
+  ];
 
   Color _currentColor = Colors.black;
   String _currentSize = '16';
+  String _currentFont = 'Default';
+  StreamSubscription<dynamic>? _changesSub;
 
   @override
   void initState() {
     super.initState();
-    widget.controller.addListener(_syncFromSelection);
+    _attachController(widget.controller);
     _syncFromSelection();
   }
 
@@ -28,16 +41,27 @@ class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
   void didUpdateWidget(covariant KeepRichTextToolbar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
-      oldWidget.controller.removeListener(_syncFromSelection);
-      widget.controller.addListener(_syncFromSelection);
+      _detachController();
+      _attachController(widget.controller);
       _syncFromSelection();
     }
   }
 
   @override
   void dispose() {
-    widget.controller.removeListener(_syncFromSelection);
+    _detachController();
     super.dispose();
+  }
+
+  void _attachController(QuillController controller) {
+    // Selection moves don't always trigger controller listeners reliably across
+    // versions; the changes stream covers selection + doc changes.
+    _changesSub = controller.changes.listen((_) => _syncFromSelection());
+  }
+
+  void _detachController() {
+    _changesSub?.cancel();
+    _changesSub = null;
   }
 
   void _syncFromSelection() {
@@ -45,15 +69,25 @@ class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
 
     final colorAttr = style.attributes[Attribute.color.key];
     final sizeAttr = style.attributes[Attribute.size.key];
+    final fontAttr = style.attributes[Attribute.font.key];
 
     final nextColor = _parseHexColor(colorAttr?.value?.toString());
     final nextSize = sizeAttr?.value?.toString();
+    final nextFont = fontAttr?.value?.toString();
 
     if (mounted) {
       setState(() {
-        _currentColor = nextColor ?? _currentColor;
+        // If no explicit color on selection, reflect default black.
+        _currentColor = nextColor ?? Colors.black;
         if (nextSize != null && _sizes.contains(nextSize)) {
           _currentSize = nextSize;
+        } else if (nextSize == null) {
+          _currentSize = '16';
+        }
+        if (nextFont != null && _fonts.contains(nextFont)) {
+          _currentFont = nextFont;
+        } else if (nextFont == null) {
+          _currentFont = 'Default';
         }
       });
     }
@@ -86,6 +120,28 @@ class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
     });
   }
 
+  void _setFont(String font) {
+    if (font == 'Default') {
+      widget.controller.formatSelection(
+        Attribute.fromKeyValue(Attribute.font.key, null),
+      );
+      setState(() => _currentFont = 'Default');
+      return;
+    }
+
+    // Ensure the font family is registered/loaded (google_fonts lazily loads).
+    try {
+      GoogleFonts.getFont(font);
+    } catch (_) {
+      // If unavailable, still set attribute; editor will fall back gracefully.
+    }
+
+    widget.controller.formatSelection(
+      Attribute.fromKeyValue(Attribute.font.key, font),
+    );
+    setState(() => _currentFont = font);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -114,6 +170,26 @@ class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
                 onTap: () => _toggle(Attribute.underline),
               ),
               const VerticalDivider(width: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _currentFont,
+                    items: _fonts
+                        .map(
+                          (f) => DropdownMenuItem<String>(
+                            value: f,
+                            child: Text(f),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (val) {
+                      if (val == null) return;
+                      _setFont(val);
+                    },
+                  ),
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: DropdownButtonHideUnderline(
