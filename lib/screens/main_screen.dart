@@ -251,6 +251,9 @@ class _MainScreenState extends State<MainScreen> {
         .where((n) => !n.isPinned && !n.isArchived)
         .toList();
 
+    pinnedNotes.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    otherNotes.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,6 +295,9 @@ class _MainScreenState extends State<MainScreen> {
     final otherNotes = notesController.activeNotes
         .where((n) => !n.isPinned && !n.isArchived)
         .toList();
+
+    pinnedNotes.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    otherNotes.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     return ListView(
       children: [
         if (pinnedNotes.isNotEmpty) ...[

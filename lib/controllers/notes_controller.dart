@@ -61,6 +61,10 @@ class NotesController extends GetxController {
     return list;
   }
 
+  NotesModel _touch(NotesModel note) {
+    return note.copyWith(updatedAt: DateTime.now().millisecondsSinceEpoch);
+  }
+
   void toggleReminderView() {
     reminderViewMode.value = reminderViewMode.value == ReminderViewMode.list
         ? ReminderViewMode.grid
@@ -74,7 +78,7 @@ class NotesController extends GetxController {
       notes.map((note) {
         if (!ids.contains(note.id)) return note;
 
-        return note.copyWith(isPinned: !allPinned);
+        return _touch(note.copyWith(isPinned: !allPinned));
       }).toList(),
     );
 
@@ -97,16 +101,18 @@ class NotesController extends GetxController {
   }
 
   void addNotes(NotesModel note) {
-    notes.add(note);
-    unawaited(_db.upsert(note));
+    final touched = _touch(note);
+    notes.add(touched);
+    unawaited(_db.upsert(touched));
     notes.refresh();
   }
 
   void updateNote(NotesModel note) {
     final index = notes.indexWhere((n) => n.id == note.id);
     if (index != -1) {
-      notes[index] = note;
-      unawaited(_db.upsert(note));
+      final touched = _touch(note);
+      notes[index] = touched;
+      unawaited(_db.upsert(touched));
       notes.refresh();
     }
   }
@@ -120,7 +126,7 @@ class NotesController extends GetxController {
 
     for (int i = 0; i < notes.length; i++) {
       if (ids.contains(notes[i].id)) {
-        notes[i] = notes[i].copyWith(isDeleted: true, deletedAt: now);
+        notes[i] = _touch(notes[i].copyWith(isDeleted: true, deletedAt: now));
         unawaited(_db.upsert(notes[i]));
       }
     }
@@ -129,7 +135,7 @@ class NotesController extends GetxController {
   void archiveNotes(Set<String> ids) {
     for (int i = 0; i < notes.length; i++) {
       if (ids.contains(notes[i].id)) {
-        notes[i] = notes[i].copyWith(isArchived: true);
+        notes[i] = _touch(notes[i].copyWith(isArchived: true));
         unawaited(_db.upsert(notes[i]));
       }
     }
@@ -139,7 +145,7 @@ class NotesController extends GetxController {
   void unarchiveNotes(Set<String> ids) {
     for (int i = 0; i < notes.length; i++) {
       if (ids.contains(notes[i].id)) {
-        notes[i] = notes[i].copyWith(isArchived: false);
+        notes[i] = _touch(notes[i].copyWith(isArchived: false));
         unawaited(_db.upsert(notes[i]));
       }
     }
@@ -147,14 +153,14 @@ class NotesController extends GetxController {
   }
 
   void archiveNote(NotesModel note) {
-    final updated = note.copyWith(isArchived: true, isPinned: false);
+    final updated = _touch(note.copyWith(isArchived: true, isPinned: false));
     updateNote(updated);
   }
 
   void restoreNotes(Set<String> ids) {
     for (int i = 0; i < notes.length; i++) {
       if (ids.contains(notes[i].id)) {
-        notes[i] = notes[i].copyWith(isDeleted: false, deletedAt: null);
+        notes[i] = _touch(notes[i].copyWith(isDeleted: false, deletedAt: null));
         unawaited(_db.upsert(notes[i]));
       }
     }
@@ -183,7 +189,7 @@ class NotesController extends GetxController {
 
     final note = notes[index];
 
-    notes[index] = note.copyWith(reminderAt: time);
+    notes[index] = _touch(note.copyWith(reminderAt: time));
     unawaited(_db.upsert(notes[index]));
     notes.refresh();
 
@@ -199,7 +205,7 @@ class NotesController extends GetxController {
     final index = notes.indexWhere((n) => n.id == noteId);
     if (index == -1) return;
 
-    notes[index] = notes[index].copyWith(reminderAt: null);
+    notes[index] = _touch(notes[index].copyWith(reminderAt: null));
     unawaited(_db.upsert(notes[index]));
 
     ReminderServices.cancel(noteId);
@@ -210,7 +216,7 @@ class NotesController extends GetxController {
   void updateNoteColor(String noteId, Color color) {
     final index = notes.indexWhere((n) => n.id == noteId);
     if (index != -1) {
-      notes[index] = notes[index].copyWith(color: color.value);
+      notes[index] = _touch(notes[index].copyWith(color: color.value));
       unawaited(_db.upsert(notes[index])); // persist change
       notes.refresh(); // update UI
     }

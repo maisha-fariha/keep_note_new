@@ -5,6 +5,7 @@ class NotesModel {
   final String title;
   final String content;
   final int color;
+  final int updatedAt;
 
   final bool bold;
   final bool italic;
@@ -26,6 +27,7 @@ class NotesModel {
     required this.title,
     required this.content,
     int? color,
+    int? updatedAt,
     required this.bold,
     required this.italic,
     required this.underline,
@@ -39,6 +41,7 @@ class NotesModel {
     this.reminderAt,
     List<String>? images,
   }) : color = color ?? 0xFFFFFFFF,
+       updatedAt = updatedAt ?? DateTime.now().millisecondsSinceEpoch,
        fontFamily = fontFamily ?? 'Default',
        textColor = textColor ?? 0xFF000000,
        images = images ?? [];
@@ -49,6 +52,7 @@ class NotesModel {
       'title': title,
       'content': content,
       'color': color,
+      'updatedAt': updatedAt,
       'bold': bold ? 1 : 0,
       'italic': italic ? 1 : 0,
       'underline': underline ? 1 : 0,
@@ -70,6 +74,7 @@ class NotesModel {
       title: map['title'] ?? '',
       content: map['content'] ?? '',
       color: map['color'] ?? 0xFFFFFFFF,
+      updatedAt: map['updatedAt'],
       bold: (map['bold'] ?? 0) == 1,
       italic: (map['italic'] ?? 0) == 1,
       underline: (map['underline'] ?? 0) == 1,
@@ -93,6 +98,7 @@ class NotesModel {
     String? title,
     String? content,
     int? color,
+    int? updatedAt,
     bool? bold,
     bool? italic,
     bool? underline,
@@ -111,6 +117,7 @@ class NotesModel {
       title: title ?? this.title,
       content: content ?? this.content,
       color: color ?? this.color,
+      updatedAt: updatedAt ?? this.updatedAt,
       bold: bold ?? this.bold,
       italic: italic ?? this.italic,
       underline: underline ?? this.underline,

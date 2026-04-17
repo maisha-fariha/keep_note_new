@@ -10,7 +10,7 @@ class NotesDatabase {
   static final NotesDatabase instance = NotesDatabase._();
 
   static const _dbName = 'keep_note.db';
-  static const _dbVersion = 1;
+  static const _dbVersion = 2;
 
   static const tableNotes = 'notes';
 
@@ -40,6 +40,7 @@ CREATE TABLE $tableNotes(
   title TEXT NOT NULL,
   content TEXT NOT NULL,
   color INTEGER NOT NULL,
+  updatedAt INTEGER NOT NULL,
   bold INTEGER NOT NULL,
   italic INTEGER NOT NULL,
   underline INTEGER NOT NULL,
@@ -54,6 +55,13 @@ CREATE TABLE $tableNotes(
   reminderAt INTEGER
 )
 ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute(
+            'ALTER TABLE $tableNotes ADD COLUMN updatedAt INTEGER NOT NULL DEFAULT 0',
+          );
+        }
       },
     );
   }
