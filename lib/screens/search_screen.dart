@@ -3,7 +3,6 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:keep_note_new/controllers/notes_controller.dart';
 import 'package:keep_note_new/screens/text_notes_screen.dart';
-import 'package:keep_note_new/widgets/keep_rich_text_preview.dart';
 
 import '../models/notes_model.dart';
 
@@ -135,10 +134,28 @@ class SearchScreen extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             SizedBox(height: 6),
-            KeepRichTextPreview(content: note.content, maxLines: 5),
+            Text(
+              _firstNWords(note.plainContent, 30),
+              maxLines: 5,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.normal,
+                fontStyle: FontStyle.normal,
+                decoration: TextDecoration.none,
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  String _firstNWords(String text, int n) {
+    final s = text.trim();
+    if (s.isEmpty) return '';
+    final words = s.split(RegExp(r'\s+'));
+    if (words.length <= n) return s;
+    return words.take(n).join(' ');
   }
 }

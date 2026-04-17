@@ -70,31 +70,37 @@ class _KeepRichTextPreviewState extends State<KeepRichTextPreview> {
     final estimatedLineHeight = DefaultTextStyle.of(context).style.fontSize ?? 14;
     final maxHeight = (estimatedLineHeight * 1.4) * widget.maxLines;
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: maxHeight),
-      child: IgnorePointer(
-        child: QuillEditor(
-          controller: _controller,
-          focusNode: _focusNode,
-          scrollController: _scrollController,
-          config: QuillEditorConfig(
-            expands: false,
-            padding: EdgeInsets.zero,
-            scrollable: false,
-            showCursor: false,
-            enableInteractiveSelection: false,
-            customStyleBuilder: (attribute) {
-              if (attribute.key == Attribute.font.key) {
-                final name = attribute.value?.toString();
-                if (name == null || name.isEmpty) return const TextStyle();
-                try {
-                  return GoogleFonts.getFont(name);
-                } catch (_) {
-                  return TextStyle(fontFamily: name);
-                }
-              }
-              return const TextStyle();
-            },
+    return ClipRect(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxHeight),
+        child: SizedBox(
+          width: double.infinity,
+          child: IgnorePointer(
+            child: QuillEditor(
+              controller: _controller,
+              focusNode: _focusNode,
+              scrollController: _scrollController,
+              config: QuillEditorConfig(
+                expands: false,
+                padding: EdgeInsets.zero,
+                scrollable: false,
+                showCursor: false,
+                enableInteractiveSelection: false,
+                maxContentWidth: double.infinity,
+                customStyleBuilder: (attribute) {
+                  if (attribute.key == Attribute.font.key) {
+                    final name = attribute.value?.toString();
+                    if (name == null || name.isEmpty) return const TextStyle();
+                    try {
+                      return GoogleFonts.getFont(name);
+                    } catch (_) {
+                      return TextStyle(fontFamily: name);
+                    }
+                  }
+                  return const TextStyle();
+                },
+              ),
+            ),
           ),
         ),
       ),
