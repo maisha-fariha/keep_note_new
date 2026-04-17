@@ -72,10 +72,11 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
-      // Show keyboard automatically when opening the editor.
-      // For a new note: jump straight to the note field.
-      // For an existing note: focus the note field if user is continuing writing.
-      FocusScope.of(context).requestFocus(noteFocus);
+      // Don't auto-open the keyboard when viewing an existing note.
+      // For a brand new note, we focus the editor so the user can start typing immediately.
+      if (widget.note == null) {
+        FocusScope.of(context).requestFocus(noteFocus);
+      }
     });
   }
 
