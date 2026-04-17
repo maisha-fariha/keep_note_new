@@ -10,6 +10,7 @@ import 'package:keep_note_new/models/notes_model.dart';
 import 'package:keep_note_new/services/reminder_services.dart';
 import 'package:keep_note_new/widgets/keep_rich_text_toolbar.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../controllers/text_style_controller.dart';
 import '../widgets/keep_color_bottom_sheet.dart';
 import 'package:image_picker/image_picker.dart';
@@ -534,6 +535,20 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                             padding: EdgeInsets.zero,
                             expands: false,
                             placeholder: 'Notes',
+                            customStyleBuilder: (attribute) {
+                              if (attribute.key == Attribute.font.key) {
+                                final name = attribute.value?.toString();
+                                if (name == null || name.isEmpty) {
+                                  return const TextStyle();
+                                }
+                                try {
+                                  return GoogleFonts.getFont(name);
+                                } catch (_) {
+                                  return TextStyle(fontFamily: name);
+                                }
+                              }
+                              return const TextStyle();
+                            },
                           ),
                         ),
                       ),

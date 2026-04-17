@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class KeepRichTextPreview extends StatefulWidget {
   final String content;
@@ -76,12 +77,24 @@ class _KeepRichTextPreviewState extends State<KeepRichTextPreview> {
           controller: _controller,
           focusNode: _focusNode,
           scrollController: _scrollController,
-          config: const QuillEditorConfig(
+          config: QuillEditorConfig(
             expands: false,
             padding: EdgeInsets.zero,
             scrollable: false,
             showCursor: false,
             enableInteractiveSelection: false,
+            customStyleBuilder: (attribute) {
+              if (attribute.key == Attribute.font.key) {
+                final name = attribute.value?.toString();
+                if (name == null || name.isEmpty) return const TextStyle();
+                try {
+                  return GoogleFonts.getFont(name);
+                } catch (_) {
+                  return TextStyle(fontFamily: name);
+                }
+              }
+              return const TextStyle();
+            },
           ),
         ),
       ),
