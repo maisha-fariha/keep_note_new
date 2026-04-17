@@ -15,7 +15,7 @@ class NotesController extends GetxController {
   final Rx<ArchiveViewMode> archiveViewMode = ArchiveViewMode.list.obs;
   RxString searchQuery = ''.obs;
 
-  static String _storageKey = 'notes';
+  static final String _storageKey = 'notes';
 
   @override
   void onInit() {
@@ -32,7 +32,8 @@ class NotesController extends GetxController {
     return notes.where((note) {
       if (q.isEmpty) return false;
 
-      return note.title.toLowerCase().contains(q) || note.content.toLowerCase().contains(q);
+      return note.title.toLowerCase().contains(q) ||
+          note.plainContent.toLowerCase().contains(q);
     }).toList();
   }
 

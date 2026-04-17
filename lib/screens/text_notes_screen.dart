@@ -1,12 +1,14 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:get/get.dart';
 import 'package:keep_note_new/controllers/color_controller.dart';
 import 'package:keep_note_new/controllers/notes_controller.dart';
 import 'package:keep_note_new/models/notes_model.dart';
 import 'package:keep_note_new/services/reminder_services.dart';
-import 'package:keep_note_new/widgets/keep_tool_text_bar.dart';
+import 'package:keep_note_new/widgets/keep_rich_text_toolbar.dart';
 import 'package:intl/intl.dart';
 import '../controllers/text_style_controller.dart';
 import '../widgets/keep_color_bottom_sheet.dart';
@@ -24,7 +26,6 @@ class TextNotesScreen extends StatefulWidget {
 class _TextNotesScreenState extends State<TextNotesScreen> {
   final ImagePicker _picker = ImagePicker();
   TextEditingController titleController = TextEditingController();
-  TextEditingController noteController = TextEditingController();
   final NotesController notesController = Get.find();
   final ColorController colorController = Get.put(ColorController());
   final TextStyleController styleController = Get.find<TextStyleController>();
@@ -34,9 +35,11 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
   final FocusNode titleFocus = FocusNode();
   final FocusNode noteFocus = FocusNode();
 
+  late final QuillController _quillController;
+  final ScrollController _quillScrollController = ScrollController();
+
   List<String> _images = [];
   bool _isTitleFocused = false;
-  bool _isNoteFocused = false;
   bool isPinned = false;
 
   @override
@@ -44,10 +47,14 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
     super.initState();
 
     isPinned = widget.note?.isPinned ?? false;
+
+    _quillController = QuillController(
+      document: _loadDocument(widget.note?.content),
+      selection: const TextSelection.collapsed(offset: 0),
+    );
+
     if (widget.note != null) {
       titleController.text = widget.note!.title;
-      noteController.text = widget.note!.content;
-
       styleController.restoreFromNote(widget.note!);
 
       colorController.selectedColor.value = Color(widget.note!.color);
@@ -61,12 +68,6 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       });
     });
 
-    noteFocus.addListener(() {
-      setState(() {
-        _isNoteFocused = noteFocus.hasFocus;
-      });
-    });
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
@@ -75,6 +76,33 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
       // For an existing note: focus the note field if user is continuing writing.
       FocusScope.of(context).requestFocus(noteFocus);
     });
+  }
+
+  Document _loadDocument(String? raw) {
+    if (raw == null || raw.trim().isEmpty) {
+      return Document();
+    }
+
+    // Backward compatible:
+    // - If content is Quill Delta JSON -> load it
+    // - Else treat it as plain text
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is List) {
+        return Document.fromJson(List<Map<String, dynamic>>.from(decoded));
+      }
+      return Document()..insert(0, raw);
+    } catch (_) {
+      return Document()..insert(0, raw);
+    }
+  }
+
+  String _serializeDelta() {
+    return jsonEncode(_quillController.document.toDelta().toJson());
+  }
+
+  String _plainEditorText() {
+    return _quillController.document.toPlainText().trim();
   }
 
   Future<void> _pickImageFromCamera() async {
@@ -97,9 +125,9 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
 
   void _saveAndBack() {
     final title = titleController.text.trim();
-    final content = noteController.text.trim();
+    final plain = _plainEditorText();
 
-    if (title.isEmpty && content.isEmpty && _images.isEmpty) {
+    if (title.isEmpty && plain.isEmpty && _images.isEmpty) {
       Get.back();
       return;
     }
@@ -108,7 +136,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
     final note = NotesModel(
       id: widget.note?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       title: titleController.text,
-      content: noteController.text,
+      content: _serializeDelta(),
       color: colorController.selectedColor.value.value,
       bold: style.bold.value,
       italic: style.italic.value,
@@ -364,7 +392,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
     final updatedNote = NotesModel(
       id: existingId,
       title: titleController.text,
-      content: noteController.text,
+      content: _serializeDelta(),
       color: colorController.selectedColor.value.value,
       bold: styleController.bold.value,
       italic: styleController.italic.value,
@@ -384,7 +412,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
     ReminderServices.schedule(
       noteId: existingId,
       title: updatedNote.title,
-      body: updatedNote.content,
+      body: _plainEditorText(),
       time: time,
     );
 
@@ -445,7 +473,7 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                         widget.note?.id ??
                         DateTime.now().millisecondsSinceEpoch.toString(),
                     title: titleController.text,
-                    content: noteController.text,
+                    content: _serializeDelta(),
                     color: colorController.selectedColor.value.value,
                     bold: style.bold.value,
                     italic: style.italic.value,
@@ -553,20 +581,17 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                     ),
                     Padding(
                       padding: EdgeInsets.all(16.0),
-                      child: TextFormField(
-                        autofocus: widget.note == null,
-                        maxLines: null,
-                        minLines: 1,
-                        controller: noteController,
-                        focusNode: noteFocus,
-                        style: styleController.textStyle,
-                        keyboardType: TextInputType.multiline,
-                        onTap: () {
-                          FocusScope.of(context).requestFocus(noteFocus);
-                        },
-                        decoration: InputDecoration(
-                          hintText: _isNoteFocused ? '' : 'Notes',
-                          border: InputBorder.none,
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 140),
+                        child: QuillEditor(
+                          controller: _quillController,
+                          focusNode: noteFocus,
+                          scrollController: _quillScrollController,
+                          config: const QuillEditorConfig(
+                            padding: EdgeInsets.zero,
+                            expands: false,
+                            placeholder: 'Notes',
+                          ),
                         ),
                       ),
                     ),
@@ -591,7 +616,8 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (style.showToolbar.value) KeepToolTextBar(),
+                if (style.showToolbar.value)
+                  KeepRichTextToolbar(controller: _quillController),
 
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),

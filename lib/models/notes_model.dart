@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class NotesModel {
   final String id;
   final String title;
@@ -122,5 +124,28 @@ class NotesModel {
       deletedAt: deletedAt ?? this.deletedAt,
       reminderAt: reminderAt ?? this.reminderAt,
     );
+  }
+
+  /// Returns plain text for UI/search even when [content] is a Quill Delta JSON.
+  String get plainContent {
+    final raw = content;
+    if (raw.isEmpty) return '';
+
+    try {
+      // Quill stores document as a JSON list of ops:
+      // [{"insert":"Hello"},{"insert":"\n","attributes":{...}}]
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) return raw;
+
+      final buffer = StringBuffer();
+      for (final op in decoded) {
+        if (op is Map && op['insert'] is String) {
+          buffer.write(op['insert'] as String);
+        }
+      }
+      return buffer.toString().trimRight();
+    } catch (_) {
+      return raw;
+    }
   }
 }
