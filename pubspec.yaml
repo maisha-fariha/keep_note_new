@@ -45,6 +45,21 @@ dependencies:
   google_fonts: ^6.3.0
   sqflite: ^2.4.2
   path: ^1.9.1
+  web: ^0.3.0
+
+
+
+
+  gems_responsive:
+    git:
+      url: https://github.com/md-adnan-ullah/flutter_gems.git
+      path: packages/gems_responsive
+      ref: develop   # keep in sync with data_layer/core
+  gems_core:
+    git:
+      url: https://github.com/md-adnan-ullah/flutter_gems.git
+      path: packages/gems_core
+      ref: develop   # same branch/tag as above
 
 dev_dependencies:
   flutter_test:
