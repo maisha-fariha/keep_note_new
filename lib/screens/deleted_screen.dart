@@ -7,6 +7,7 @@ import '../controllers/main_screen_controller.dart';
 import '../controllers/notes_controller.dart';
 import '../models/notes_model.dart';
 import '../widgets/keep_drawer.dart';
+import '../widgets/keep_rich_text_preview.dart';
 
 class DeletedScreen extends StatefulWidget {
   const DeletedScreen({super.key});
@@ -160,7 +161,7 @@ class _DeletedScreenState extends State<DeletedScreen> {
                     ),
                   ),
                 const SizedBox(height: 6),
-                Text(note.content),
+                KeepRichTextPreview(content: note.content, maxLines: 6),
               ],
             ),
           ),

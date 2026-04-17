@@ -3,6 +3,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:keep_note_new/controllers/notes_controller.dart';
 import 'package:keep_note_new/screens/text_notes_screen.dart';
+import 'package:keep_note_new/widgets/keep_rich_text_preview.dart';
 
 import '../models/notes_model.dart';
 
@@ -134,12 +135,7 @@ class SearchScreen extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             SizedBox(height: 6),
-            Text(
-              note.content,
-              maxLines: 5,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 14),
-            ),
+            KeepRichTextPreview(content: note.content, maxLines: 5),
           ],
         ),
       ),

@@ -8,12 +8,30 @@ import 'package:keep_note_new/controllers/text_style_controller.dart';
 import 'package:keep_note_new/screens/main_screen.dart';
 import 'package:keep_note_new/services/notes_database.dart';
 import 'package:keep_note_new/services/reminder_services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
   await NotesDatabase.instance.init();
   await ReminderServices.init();
+
+  // Preload the fonts we expose in the editor toolbar so that Quill's
+  // `font` attribute (fontFamily string) renders immediately in all places
+  // (editor + previews) without custom style builders.
+  GoogleFonts.config.allowRuntimeFetching = true;
+  for (final f in const <String>[
+    'Roboto',
+    'Lato',
+    'Poppins',
+    'Merriweather',
+    'Source Sans Pro',
+    'Fira Sans',
+  ]) {
+    try {
+      GoogleFonts.getFont(f);
+    } catch (_) {}
+  }
 
   Get.put(ColorController(), permanent: true);
   Get.put(NotesController(), permanent: true);

@@ -363,16 +363,14 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 if (note.title.isNotEmpty) SizedBox(height: 6),
                 Text(
-                  note.content,
-                  style: TextStyle(
+                  _firstNWords(note.plainContent, 30),
+                  maxLines: isList ? 6 : 5,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
                     fontSize: 14,
-                    fontWeight: note.bold ? FontWeight.bold : FontWeight.normal,
-                    fontStyle: note.italic
-                        ? FontStyle.italic
-                        : FontStyle.normal,
-                    decoration: note.underline
-                        ? TextDecoration.underline
-                        : TextDecoration.none,
+                    fontWeight: FontWeight.normal,
+                    fontStyle: FontStyle.normal,
+                    decoration: TextDecoration.none,
                   ),
                 ),
                 if (note.reminderAt != null)
@@ -447,5 +445,13 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
     );
+  }
+
+  String _firstNWords(String text, int n) {
+    final s = text.trim();
+    if (s.isEmpty) return '';
+    final words = s.split(RegExp(r'\s+'));
+    if (words.length <= n) return s;
+    return words.take(n).join(' ');
   }
 }

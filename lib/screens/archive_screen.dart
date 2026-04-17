@@ -8,6 +8,7 @@ import 'package:keep_note_new/models/notes_model.dart';
 import 'package:keep_note_new/screens/search_screen.dart';
 import 'package:keep_note_new/screens/text_notes_screen.dart';
 import 'package:keep_note_new/widgets/keep_drawer.dart';
+import 'package:keep_note_new/widgets/keep_rich_text_preview.dart';
 
 class ArchiveScreen extends StatefulWidget {
   const ArchiveScreen({super.key});
@@ -137,11 +138,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
 
             if (note.content.isNotEmpty) ...[
               const SizedBox(height: 6),
-              Text(
-                note.content,
-                maxLines: 6,
-                overflow: TextOverflow.ellipsis,
-              ),
+              KeepRichTextPreview(content: note.content, maxLines: 6),
             ],
 
             const SizedBox(height: 8),
@@ -173,11 +170,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
           note.title.isNotEmpty ? note.title : 'No Title',
         ),
         subtitle: note.content.isNotEmpty
-            ? Text(
-          note.content,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        )
+            ? KeepRichTextPreview(content: note.content, maxLines: 2)
             : null,
         trailing: IconButton(
           icon: const Icon(Icons.unarchive_outlined),
