@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:keep_note_new/controllers/main_screen_controller.dart';
 import 'package:keep_note_new/controllers/notes_controller.dart';
 import 'package:keep_note_new/models/notes_model.dart';
@@ -10,6 +11,7 @@ import 'package:keep_note_new/screens/search_screen.dart';
 import 'package:keep_note_new/screens/text_notes_screen.dart';
 import 'package:keep_note_new/widgets/keep_color_dialog_box.dart';
 import 'package:keep_note_new/widgets/keep_drawer.dart';
+import 'package:keep_note_new/widgets/keep_rich_text_preview.dart';
 import 'package:intl/intl.dart';
 
 class MainScreen extends StatefulWidget {
@@ -305,7 +307,7 @@ class _MainScreenState extends State<MainScreen> {
           ...pinnedNotes.map(
             (note) => Padding(
               padding: EdgeInsets.only(bottom: 16),
-              child: _noteCard(note, isList: true),
+              child: _noteCard(note),
             ),
           ),
         ],
@@ -315,7 +317,7 @@ class _MainScreenState extends State<MainScreen> {
           ...otherNotes.map(
             (note) => Padding(
               padding: EdgeInsets.only(bottom: 16),
-              child: _noteCard(note, isList: true),
+              child: _noteCard(note),
             ),
           ),
         ],
@@ -323,7 +325,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _noteCard(NotesModel note, {bool isList = false}) {
+  Widget _noteCard(NotesModel note) {
     return Obx(() {
       final isSelected = controller.selectedIds.contains(note.id);
       return GestureDetector(
@@ -335,19 +337,18 @@ class _MainScreenState extends State<MainScreen> {
         },
         child: Card(
           color: Color(note.color),
-          child: Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Color(note.color),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isSelected ? Color(0xFF8AA072) : Colors.grey.shade300,
-              ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: isSelected ? Color(0xFF8AA072) : Colors.grey.shade300,
             ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (note.images.isNotEmpty)
+                if (note.images.isNotEmpty) ...[
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.file(
@@ -358,27 +359,19 @@ class _MainScreenState extends State<MainScreen> {
                       errorBuilder: (_, _, _) => SizedBox(),
                     ),
                   ),
-                SizedBox(height: 8),
+                  const SizedBox(height: 8),
+                ],
                 if (note.title.isNotEmpty)
                   Text(
                     note.title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: note.bold ? FontWeight.bold : FontWeight.w500,
-                    ),
+                    style: _titlePreviewStyle(note),
                   ),
-                if (note.title.isNotEmpty) SizedBox(height: 6),
-                Text(
-                  _firstNWords(note.plainContent, 30),
-                  maxLines: isList ? 6 : 5,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
-                    fontStyle: FontStyle.normal,
-                    decoration: TextDecoration.none,
+                if (note.title.isNotEmpty) const SizedBox(height: 6),
+                if (note.content.isNotEmpty)
+                  KeepRichTextPreview(
+                    content: note.content,
+                    maxLines: 6,
                   ),
-                ),
                 if (note.reminderAt != null)
                   Container(
                     margin: EdgeInsets.only(top: 8),
@@ -463,11 +456,32 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  String _firstNWords(String text, int n) {
-    final s = text.trim();
-    if (s.isEmpty) return '';
-    final words = s.split(RegExp(r'\s+'));
-    if (words.length <= n) return s;
-    return words.take(n).join(' ');
+  /// Title row on cards: uses per-note metadata saved with the note.
+  TextStyle _titlePreviewStyle(NotesModel note) {
+    double fontSize = 16;
+    if (note.heading == 'h1') {
+      fontSize = 24;
+    } else if (note.heading == 'h2') {
+      fontSize = 20;
+    }
+
+    final base = TextStyle(
+      fontSize: fontSize,
+      fontWeight: note.bold ? FontWeight.bold : FontWeight.w500,
+      fontStyle: note.italic ? FontStyle.italic : FontStyle.normal,
+      decoration: note.underline
+          ? TextDecoration.underline
+          : TextDecoration.none,
+      color: Color(note.textColor),
+    );
+
+    final family = note.fontFamily.trim();
+    if (family.isEmpty || family == 'Default') return base;
+
+    try {
+      return GoogleFonts.getFont(family, textStyle: base);
+    } catch (_) {
+      return base.copyWith(fontFamily: family);
+    }
   }
 }
