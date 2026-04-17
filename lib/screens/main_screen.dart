@@ -81,7 +81,7 @@ class _MainScreenState extends State<MainScreen> {
                 _fabItem(
                   Icons.text_fields,
                   'Text',
-                  70,
+                  88,
                   () => Get.to(() => TextNotesScreen()),
                 ),
               ],
@@ -427,7 +427,17 @@ class _MainScreenState extends State<MainScreen> {
         ),
         onPressed: onPressed,
         icon: Icon(icon, color: Color(0xFF8AA072)),
-        label: Text(text, style: TextStyle(color: Color(0xFF8AA072))),
+        label: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: Color(0xFF8AA072),
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       ),
     );
   }
