@@ -66,6 +66,15 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
         _isNoteFocused = noteFocus.hasFocus;
       });
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      // Show keyboard automatically when opening the editor.
+      // For a new note: jump straight to the note field.
+      // For an existing note: focus the note field if user is continuing writing.
+      FocusScope.of(context).requestFocus(noteFocus);
+    });
   }
 
   Future<void> _pickImageFromCamera() async {
@@ -208,8 +217,8 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
     );
   }
 
-  void showAddBoxBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+  Future<void> showAddBoxBottomSheet(BuildContext context) async {
+    await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: false,
@@ -485,98 +494,111 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
           ),
         ),
         body: Obx(
-          () => Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              color: colorController.selectedColor.value,
-            ),
-            child: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (_images.isNotEmpty)
-                    Padding(
-                      padding: EdgeInsets.all(12),
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: List.generate(
-                          _images.length,
-                          (index) => Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.file(
-                                  File(_images[index]),
-                                  width: 160,
-                                  height: 160,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, _, _) => SizedBox(),
+          () => GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              // Keep keypad always available while on this screen.
+              FocusScope.of(context).requestFocus(noteFocus);
+            },
+            child: Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                color: colorController.selectedColor.value,
+              ),
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_images.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.all(12),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: List.generate(
+                            _images.length,
+                            (index) => Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.file(
+                                    File(_images[index]),
+                                    width: 160,
+                                    height: 160,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, _, _) => SizedBox(),
+                                  ),
                                 ),
-                              ),
-                              Positioned(
-                                top: 4,
-                                right: 4,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _images.removeAt(index);
-                                    });
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black54,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    padding: EdgeInsets.all(4),
-                                    child: Icon(
-                                      Icons.close,
-                                      color: Colors.white,
-                                      size: 16,
+                                Positioned(
+                                  top: 4,
+                                  right: 4,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _images.removeAt(index);
+                                      });
+                                      FocusScope.of(context)
+                                          .requestFocus(noteFocus);
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.black54,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      padding: EdgeInsets.all(4),
+                                      child: Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: TextFormField(
-                      maxLines: null,
-                      minLines: 1,
-                      controller: titleController,
-                      focusNode: titleFocus,
-                      style: TextStyle(fontSize: 24),
-                      decoration: InputDecoration(
-                        hintText: _isTitleFocused ? '' : 'Title',
-                        labelStyle: TextStyle(fontSize: 24),
-                        border: InputBorder.none,
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: TextFormField(
+                        maxLines: null,
+                        minLines: 1,
+                        controller: titleController,
+                        focusNode: titleFocus,
+                        style: TextStyle(fontSize: 24),
+                        decoration: InputDecoration(
+                          hintText: _isTitleFocused ? '' : 'Title',
+                          labelStyle: TextStyle(fontSize: 24),
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: TextFormField(
-                      maxLines: null,
-                      minLines: 1,
-                      controller: noteController,
-                      focusNode: noteFocus,
-                      style: styleController.textStyle,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        hintText: _isNoteFocused ? '' : 'Notes',
-                        border: InputBorder.none,
+                    Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: TextFormField(
+                        autofocus: widget.note == null,
+                        maxLines: null,
+                        minLines: 1,
+                        controller: noteController,
+                        focusNode: noteFocus,
+                        style: styleController.textStyle,
+                        keyboardType: TextInputType.multiline,
+                        onTap: () {
+                          FocusScope.of(context).requestFocus(noteFocus);
+                        },
+                        decoration: InputDecoration(
+                          hintText: _isNoteFocused ? '' : 'Notes',
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
-                  ),
 
-                  if (widget.note?.reminderAt != null)
-                    _reminderChip(widget.note!),
-                ],
+                    if (widget.note?.reminderAt != null)
+                      _reminderChip(widget.note!),
+                  ],
+                ),
               ),
             ),
           ),
@@ -605,8 +627,10 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                           shape: StadiumBorder(),
                           backgroundColor: Color(0xFFE6E6CC),
                         ),
-                        onPressed: () {
-                          showAddBoxBottomSheet(context);
+                        onPressed: () async {
+                          await showAddBoxBottomSheet(context);
+                          if (!context.mounted) return;
+                          FocusScope.of(context).requestFocus(noteFocus);
                         },
                         child: Icon(Icons.add_box_outlined),
                       ),
@@ -618,6 +642,9 @@ class _TextNotesScreenState extends State<TextNotesScreen> {
                         ),
                         onPressed: () {
                           KeepColorBottomSheet.show(context);
+                          Future.microtask(
+                            () => FocusScope.of(context).requestFocus(noteFocus),
+                          );
                         },
                         child: Icon(Icons.color_lens_outlined),
                       ),

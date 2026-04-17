@@ -146,7 +146,7 @@ class _MainScreenState extends State<MainScreen> {
                       onTap: () {
                         Get.to(() => SearchScreen());
                       },
-                      hintText: 'Search Ke...',
+                      hintText: 'Search Text...',
                       elevation: WidgetStateProperty.all(0),
                       backgroundColor: WidgetStateProperty.all(Color(0xFFE6E6CC)),
                     ),
@@ -164,27 +164,11 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                 ),
-                // Expanded(
-                //   flex: 1,
-                //   child: IconButton(
-                //     onPressed: () {},
-                //     icon: Icon(Icons.swap_vert),
-                //   ),
-                // ),
               ],
             ),
           ),
         ),
       ),
-      // actions: [
-      //   Padding(
-      //     padding: const EdgeInsets.all(10.0),
-      //     child: CircleAvatar(
-      //       backgroundColor: Color(0xFFE6E6CC),
-      //       child: IconButton(onPressed: () {}, icon: Icon(Icons.person)),
-      //     ),
-      //   ),
-      // ],
     );
   }
 

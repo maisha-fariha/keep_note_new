@@ -99,7 +99,7 @@ class KeepToolTextBar extends StatelessWidget {
                 icon:Icon(Icons.close),
                 onPressed: () {
                   controller.hideToolbar();
-                  FocusManager.instance.primaryFocus?.unfocus();
+                  // Keep the keyboard open; just hide the toolbar.
                 },
               ),
             ],
