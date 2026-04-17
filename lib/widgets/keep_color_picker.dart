@@ -19,7 +19,7 @@ class KeepColorPicker extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12),
         scrollDirection: Axis.horizontal,
         itemCount: KeepColors.palette.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final color = KeepColors.palette[index];
           final isSelected = color.value == selectedColor.value;
@@ -37,9 +37,7 @@ class KeepColorPicker extends StatelessWidget {
                   width: isSelected ? 2 : 1,
                 ),
               ),
-              child: isSelected
-                  ? const Icon(Icons.check, size: 18)
-                  : null,
+              child: isSelected ? const Icon(Icons.check, size: 18) : null,
             ),
           );
         },

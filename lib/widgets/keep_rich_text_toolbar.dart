@@ -37,7 +37,8 @@ class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
     'Times New Roman',
     'Arial',
     'Segoe UI',
-    'Monotype Corsiva',
+    // Bundled app font (pubspec family)
+    'MonotypeCorsiva',
     'Pacifico',
     'Dancing Script',
   ];
@@ -313,6 +314,15 @@ class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
     }
   }
 
+  String _fontLabel(String font) {
+    switch (font) {
+      case 'MonotypeCorsiva':
+        return 'Monotype Corsiva';
+      default:
+        return font;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -363,7 +373,7 @@ class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
                             (f) => DropdownMenuItem<String>(
                               value: f,
                               child: Text(
-                                f,
+                              _fontLabel(f),
                                 overflow: TextOverflow.ellipsis,
                                 style: _fontPreviewStyle(f),
                               ),
