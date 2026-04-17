@@ -24,7 +24,7 @@ class _KeepRichTextToolbarState extends State<KeepRichTextToolbar> {
     '28',
     '32',
     '36',
-    '48'
+    '48',
   ];
   static const _fonts = <String>[
     'Default',
